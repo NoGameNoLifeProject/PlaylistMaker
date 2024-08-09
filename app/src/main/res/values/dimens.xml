@@ -4,4 +4,5 @@
     <dimen name="title_text_size">22sp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="corner_radius_medium">16dp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
 </resources>
