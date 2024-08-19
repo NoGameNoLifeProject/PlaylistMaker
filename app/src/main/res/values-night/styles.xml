@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SettingsItemButton">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:backgroundTint">@android:color/transparent</item>
+        <item name="android:gravity">end</item>
+        <item name="tint">@color/yp_white</item>
+    </style>
+</resources>

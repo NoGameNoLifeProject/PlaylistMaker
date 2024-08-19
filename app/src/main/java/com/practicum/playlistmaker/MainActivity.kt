@@ -3,6 +3,7 @@ package com.practicum.playlistmaker
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -20,21 +21,17 @@ class MainActivity : AppCompatActivity() {
         val mediaButton = findViewById<Button>(R.id.media_button)
         val settingsButton = findViewById<Button>(R.id.settings_button)
 
-        val searchClickListener: View.OnClickListener = object : View.OnClickListener {
-            override fun onClick(v: View?) {
-//                Toast.makeText(this@MainActivity, "Поиск", Toast.LENGTH_SHORT).show()
-            }
+        searchButton.setOnClickListener {
+            val displayIntent = Intent(this, SearchActivity::class.java)
+            startActivity(displayIntent)
         }
-        searchButton.setOnClickListener(searchClickListener)
 
         mediaButton.setOnClickListener {
-//            Toast.makeText(this@MainActivity, "Медиатека", Toast.LENGTH_SHORT).show()
         }
 
         settingsButton.setOnClickListener {
             val displayIntent = Intent(this, SettingsActivity::class.java)
             startActivity(displayIntent)
-//            Toast.makeText(this@MainActivity, "Настройки", Toast.LENGTH_SHORT).show()
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

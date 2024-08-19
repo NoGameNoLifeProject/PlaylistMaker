@@ -7,4 +7,52 @@
     android:layout_height="match_parent"
     tools:context=".SearchActivity">
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/backgroundSecondaryColor"
+        android:orientation="vertical"
+        android:padding="4dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolBar"
+            style="@style/ToolBarStyle"
+            app:title="@string/search" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:gravity="center_vertical"
+            android:theme="@style/Theme.SearchBar"
+            app:cursorColor="@color/yp_blue"
+            app:endIconDrawable="@drawable/clear_icon"
+            app:endIconMinSize="16dp"
+            app:endIconMode="clear_text"
+            app:endIconTint="?textColorPrimary"
+            app:hintEnabled="false"
+            app:startIconDrawable="@drawable/search_icon"
+            app:startIconMinSize="16dp"
+            app:startIconTint="?textColorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginHorizontal="12dp"
+                android:background="@android:color/transparent"
+                android:hint="@string/search"
+                android:inputType="text"
+                android:maxLength="100"
+                android:maxLines="1"
+                android:paddingVertical="0dp"
+                android:paddingStart="@dimen/pd_l"
+                android:paddingEnd="@dimen/pd_l"
+                android:textColor="?textColorPrimary"
+                android:textColorHint="?textColorPrimary" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
