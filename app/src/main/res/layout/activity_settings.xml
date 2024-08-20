@@ -19,55 +19,45 @@
             style="@style/ToolBarStyle"
             app:title="@string/settings" />
 
-        <LinearLayout style="@style/SettingsItemLayout">
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            style="@style/SettingsSwitch"
+            android:gravity="center_vertical"
+            android:text="@string/settings_theme"
+            android:paddingEnd="10dp" />
 
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/settings_theme" />
+        <TextView
+            android:id="@+id/share_button"
+            style="@style/SettingsItem"
+            android:drawableEnd="@drawable/share_icon"
+            android:text="@string/settings_share"
+            android:paddingEnd="18dp"/>
 
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="end" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/support_button"
+            style="@style/SettingsItem"
+            android:drawableEnd="@drawable/support_icon"
+            android:text="@string/settings_support" />
 
-        <LinearLayout style="@style/SettingsItemLayout">
-
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/settings_share" />
-
-            <ImageButton
-                android:id="@+id/share_button"
-                style="@style/SettingsItemButton"
-                app:srcCompat="@drawable/share_icon" />
-        </LinearLayout>
-
-        <LinearLayout style="@style/SettingsItemLayout">
-
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/settings_support" />
-
-            <ImageButton
-                android:id="@+id/support_button"
-                style="@style/SettingsItemButton"
-                app:srcCompat="@drawable/support_icon" />
-        </LinearLayout>
-
-        <LinearLayout style="@style/SettingsItemLayout">
-
-            <TextView
-                style="@style/SettingsItemTextStyle"
-                android:text="@string/settings_user_agreement" />
-
-            <ImageButton
-                android:id="@+id/user_agreement_button"
-                style="@style/SettingsItemButton"
-                app:srcCompat="@drawable/arrow_forward_icon" />
-
-        </LinearLayout>
-
+        <TextView
+            android:id="@+id/user_agreement_button"
+            style="@style/SettingsItem"
+            android:drawableEnd="@drawable/arrow_forward_icon"
+            android:text="@string/settings_user_agreement"
+            android:paddingEnd="21dp"/>
 
     </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="16dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

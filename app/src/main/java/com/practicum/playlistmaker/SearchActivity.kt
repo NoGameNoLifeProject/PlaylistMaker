@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.textfield.TextInputLayout
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
@@ -20,8 +22,17 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.activity_search)
 
         val toolBar = findViewById<MaterialToolbar>(R.id.toolBar)
+        val searchLayout = findViewById<TextInputLayout>(R.id.search_layout)
+        val searchBar = findViewById<EditText>(R.id.search)
+
         toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
+        }
+
+        searchLayout.setEndIconOnClickListener {
+            val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+            inputMethodManager?.hideSoftInputFromWindow(it.windowToken, 0)
+            searchBar.setText("")
         }
 
         val searchTextWatcher = object : TextWatcher {
@@ -35,8 +46,6 @@ class SearchActivity : AppCompatActivity() {
                 searchText = s.toString()
             }
         }
-
-        val searchBar = findViewById<EditText>(R.id.search)
         searchBar.addTextChangedListener(searchTextWatcher)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

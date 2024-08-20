@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -22,7 +23,7 @@ class SettingsActivity  : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val shareButton = findViewById<ImageButton>(R.id.share_button)
+        val shareButton = findViewById<TextView>(R.id.share_button)
         shareButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
             intent.setType("text/plain");
@@ -31,7 +32,7 @@ class SettingsActivity  : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val supportButton = findViewById<ImageButton>(R.id.support_button)
+        val supportButton = findViewById<TextView>(R.id.support_button)
         supportButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:")
@@ -41,7 +42,7 @@ class SettingsActivity  : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val userAgreementButton = findViewById<ImageButton>(R.id.user_agreement_button)
+        val userAgreementButton = findViewById<TextView>(R.id.user_agreement_button)
         userAgreementButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse(getString(R.string.settings_user_agreement_link))
