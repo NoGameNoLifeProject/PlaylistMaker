@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SettingsSwitch" parent="SettingsItem">
+        <item name="thumbTint">@color/yp_blue</item>
+        <item name="trackTint">@color/yp_blue_light</item>
+    </style>
+</resources>
