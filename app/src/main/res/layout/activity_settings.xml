@@ -22,28 +22,28 @@
         <com.google.android.material.switchmaterial.SwitchMaterial
             style="@style/SettingsSwitch"
             android:gravity="center_vertical"
-            android:text="@string/settings_theme"
-            android:paddingEnd="10dp" />
+            android:paddingEnd="10dp"
+            android:text="@string/settings_theme" />
 
         <TextView
             android:id="@+id/share_button"
             style="@style/SettingsItem"
-            android:drawableEnd="@drawable/share_icon"
+            android:paddingEnd="18dp"
             android:text="@string/settings_share"
-            android:paddingEnd="18dp"/>
+            app:drawableEndCompat="@drawable/share_icon" />
 
         <TextView
             android:id="@+id/support_button"
             style="@style/SettingsItem"
-            android:drawableEnd="@drawable/support_icon"
-            android:text="@string/settings_support" />
+            android:text="@string/settings_support"
+            app:drawableEndCompat="@drawable/support_icon" />
 
         <TextView
             android:id="@+id/user_agreement_button"
             style="@style/SettingsItem"
-            android:drawableEnd="@drawable/arrow_forward_icon"
+            android:paddingEnd="21dp"
             android:text="@string/settings_user_agreement"
-            android:paddingEnd="21dp"/>
+            app:drawableEndCompat="@drawable/arrow_forward_icon" />
 
     </LinearLayout>
 

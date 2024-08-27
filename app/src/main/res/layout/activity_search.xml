@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SearchActivity">
+    tools:context=".Search.SearchActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -32,11 +32,11 @@
             app:endIconDrawable="@drawable/clear_icon"
             app:endIconMinSize="16dp"
             app:endIconMode="clear_text"
-            app:endIconTint="?textColorPrimary"
+            app:endIconTint="?textColorSecondary"
             app:hintEnabled="false"
             app:startIconDrawable="@drawable/search_icon"
             app:startIconMinSize="16dp"
-            app:startIconTint="?textColorPrimary">
+            app:startIconTint="?textColorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/search"
@@ -52,8 +52,18 @@
                 android:paddingStart="@dimen/pd_l"
                 android:paddingEnd="@dimen/pd_l"
                 android:textColor="?textColorPrimary"
-                android:textColorHint="?textColorPrimary" />
+                android:textColorHint="?textColorSecondary" />
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="16dp"
+            android:id="@+id/rv_search_results"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="vertical"
+            tools:listitem="@layout/track_item"
+            tools:itemCount="7"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
