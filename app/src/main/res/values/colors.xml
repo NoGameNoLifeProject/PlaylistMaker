@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="text_main_black">#1A1B22</color>
-    <color name="text_settings_black">#000000</color>
-    <color name="text_settings_white">#FFFFFFFF</color>
-    <color name="settings_icon_color">#AEAFB4</color>
     <color name="yp_black">#1A1B22</color>
     <color name="yp_white">#FFFFFF</color>
     <color name="yp_text_gray">#AEAFB4</color>
