@@ -20,6 +20,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.practicum.playlistmaker.Models.Track
+import com.practicum.playlistmaker.Models.TracksResponse
 import com.practicum.playlistmaker.R
 import retrofit2.Call
 import retrofit2.Callback
@@ -77,6 +78,7 @@ class SearchActivity : AppCompatActivity() {
             searchBar.setText("")
             tracks.clear()
             searchResultsAdapter.notifyDataSetChanged()
+            toggleResultsState(SearchResultsStates.TracksList)
         }
 
         val searchTextWatcher = object : TextWatcher {
@@ -116,38 +118,45 @@ class SearchActivity : AppCompatActivity() {
         }
 
         itunesApi.search(searchText).enqueue(object : Callback<TracksResponse> {
-            override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
-                if (response.code() == 200) {
+            override fun onResponse(
+                call: Call<TracksResponse>,
+                response: Response<TracksResponse>
+            ) {
+                if (response.isSuccessful) {
                     tracks.clear()
-                    if (response.body()?.results?.isNotEmpty() == true) {
-                        tracks.addAll(response.body()?.results!!)
+                    val results = response.body()?.results
+                    if (results?.isNotEmpty() == true) {
+                        tracks.addAll(results)
                     }
                     searchResultsAdapter.notifyDataSetChanged()
-                    if (tracks.isEmpty())
-                        toggleNoResults(true)
-                    else
-                        toggleNoResults(false)
+                    toggleResultsState(if (tracks.isEmpty()) SearchResultsStates.NoResults else SearchResultsStates.TracksList)
                 }
             }
 
             override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
-                toggleNoInternet(true)
+                toggleResultsState(SearchResultsStates.NoInternet)
             }
         })
     }
 
-    private fun toggleNoResults(state: Boolean = true) {
-        searchResultsErrors.visibility = if(state) View.VISIBLE else View.GONE
-        searchResultsErrorsImage.setImageResource(R.drawable.no_results_icon)
-        searchResultsErrorsText.text = getString(R.string.search_no_results)
-        searchResultsErrorsUpdate.visibility = View.GONE
-    }
-
-    private fun toggleNoInternet(state: Boolean = true) {
-        searchResultsErrors.visibility = if(state) View.VISIBLE else View.GONE
-        searchResultsErrorsImage.setImageResource(R.drawable.no_internet_icon)
-        searchResultsErrorsText.text = getString(R.string.search_no_internet)
-        searchResultsErrorsUpdate.visibility = View.VISIBLE
+    private fun toggleResultsState(state: SearchResultsStates) {
+        when (state) {
+            SearchResultsStates.TracksList -> {
+                searchResultsErrors.visibility = View.GONE
+            }
+            SearchResultsStates.NoResults -> {
+                searchResultsErrors.visibility = View.VISIBLE
+                searchResultsErrorsImage.setImageResource(R.drawable.no_results_icon)
+                searchResultsErrorsText.text = getString(R.string.search_no_results)
+                searchResultsErrorsUpdate.visibility = View.GONE
+            }
+            SearchResultsStates.NoInternet -> {
+                searchResultsErrors.visibility = View.VISIBLE
+                searchResultsErrorsImage.setImageResource(R.drawable.no_internet_icon)
+                searchResultsErrorsText.text = getString(R.string.search_no_internet)
+                searchResultsErrorsUpdate.visibility = View.VISIBLE
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -164,5 +173,9 @@ class SearchActivity : AppCompatActivity() {
 
     companion object {
         const val SEARCH_TEXT = "SEARCH_TEXT"
+    }
+
+    enum class SearchResultsStates {
+        TracksList, NoResults, NoInternet
     }
 }

@@ -6,3 +6,6 @@ data class Track(
     val trackTimeMillis: Long, // Продолжительность трека
     val artworkUrl100: String // Ссылка на изображение обложки
 )
+
+class TracksResponse(val resultCount: Int,
+                     val results: List<Track>)
