@@ -3,30 +3,69 @@ package com.practicum.playlistmaker.Search
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.practicum.playlistmaker.Models.Track
 import com.practicum.playlistmaker.R
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
-    private var tracks = arrayListOf<Track>()
+    private val tracks: MutableList<Track> = mutableListOf()
+
+    private lateinit var itunesApi: ItunesAPI
+
+    private val searchResultsAdapter = SearchResultsAdapter(tracks)
+
+    private lateinit var toolBar: MaterialToolbar
+    private lateinit var searchLayout: TextInputLayout
+    private lateinit var searchBar: TextInputEditText
+    private lateinit var rvSearchResults: RecyclerView
+    private lateinit var searchResultsErrors: LinearLayout
+    private lateinit var searchResultsErrorsImage: ImageView
+    private lateinit var searchResultsErrorsText: TextView
+    private lateinit var searchResultsErrorsUpdate: Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
 
-        val toolBar = findViewById<MaterialToolbar>(R.id.toolBar)
-        val searchLayout = findViewById<TextInputLayout>(R.id.search_layout)
-        val searchBar = findViewById<EditText>(R.id.search)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(getString(R.string.itunes_api_base_url))
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        itunesApi = retrofit.create(ItunesAPI::class.java)
+
+        toolBar = findViewById(R.id.toolBar)
+        searchLayout = findViewById(R.id.search_layout)
+        searchBar = findViewById(R.id.search)
+        rvSearchResults = findViewById(R.id.rv_search_results)
+        searchResultsErrors = findViewById(R.id.search_results_errors)
+        searchResultsErrorsImage = findViewById(R.id.search_results_errors_image)
+        searchResultsErrorsText = findViewById(R.id.search_results_errors_text)
+        searchResultsErrorsUpdate = findViewById(R.id.search_results_errors_update)
+
+        rvSearchResults.adapter = searchResultsAdapter
 
         toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -36,6 +75,8 @@ class SearchActivity : AppCompatActivity() {
             val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(it.windowToken, 0)
             searchBar.setText("")
+            tracks.clear()
+            searchResultsAdapter.notifyDataSetChanged()
         }
 
         val searchTextWatcher = object : TextWatcher {
@@ -50,8 +91,15 @@ class SearchActivity : AppCompatActivity() {
             }
         }
         searchBar.addTextChangedListener(searchTextWatcher)
+        searchBar.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                search()
+            }
+            false
+        }
 
-        initTracksView()
+        searchResultsErrorsUpdate.setOnClickListener { search() }
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -60,37 +108,46 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    fun initTracksView(){
-        tracks = arrayListOf(
-            Track("Smells Like Teen Spirit",
-                "Nirvana",
-                "5:01",
-                "https://is5-ssl.mzstatic.com/image/thumb/Music115/v4/7b/58/c2/7b58c21a-2b51-2bb2-e59a-9bb9b96ad8c3/00602567924166.rgb.jpg/100x100bb.jpg"),
+    private fun search() {
+        if (searchText.isEmpty()) {
+            tracks.clear()
+            searchResultsAdapter.notifyDataSetChanged()
+            return
+        }
 
-            Track("Billie Jean",
-                "Michael Jackson",
-                "4:35",
-                "https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg"),
+        itunesApi.search(searchText).enqueue(object : Callback<TracksResponse> {
+            override fun onResponse(call: Call<TracksResponse>, response: Response<TracksResponse>) {
+                if (response.code() == 200) {
+                    tracks.clear()
+                    if (response.body()?.results?.isNotEmpty() == true) {
+                        tracks.addAll(response.body()?.results!!)
+                    }
+                    searchResultsAdapter.notifyDataSetChanged()
+                    if (tracks.isEmpty())
+                        toggleNoResults(true)
+                    else
+                        toggleNoResults(false)
+                }
+            }
 
-            Track("Stayin' Alive",
-                "Bee Gees",
-                "4:10",
-                "https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg"),
+            override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
+                toggleNoInternet(true)
+            }
+        })
+    }
 
-            Track("Whole Lotta Love",
-                "Led Zeppelin",
-                "5:33",
-                "https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"),
+    private fun toggleNoResults(state: Boolean = true) {
+        searchResultsErrors.visibility = if(state) View.VISIBLE else View.GONE
+        searchResultsErrorsImage.setImageResource(R.drawable.no_results_icon)
+        searchResultsErrorsText.text = getString(R.string.search_no_results)
+        searchResultsErrorsUpdate.visibility = View.GONE
+    }
 
-            Track("Sweet Child O'Mine",
-                "Guns N' Roses",
-                "5:03",
-                "https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg")
-        )
-
-        val searchResultsAdapter = SearchResultsAdapter(tracks)
-        val rvSearchResults = findViewById<RecyclerView>(R.id.rv_search_results)
-        rvSearchResults.adapter = searchResultsAdapter
+    private fun toggleNoInternet(state: Boolean = true) {
+        searchResultsErrors.visibility = if(state) View.VISIBLE else View.GONE
+        searchResultsErrorsImage.setImageResource(R.drawable.no_internet_icon)
+        searchResultsErrorsText.text = getString(R.string.search_no_internet)
+        searchResultsErrorsUpdate.visibility = View.VISIBLE
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -4,6 +4,10 @@
     <string name="search_track_name_placeholder">Название трека</string>
     <string name="search_track_artist_placeholder">Исполнитель</string>
     <string name="search_track_time_placeholder">3:15</string>
+    <string name="search_no_results">Ничего не нашлось</string>
+    <string name="search_no_internet">Проблемы со связью \n\n Загрузка не удалась. Проверьте подключение к интернету</string>
+    <string name="search_no_internet_update_button">Обновить</string>
+    <string name="itunes_api_base_url">https://itunes.apple.com</string>
     <string name="media">Медиатека</string>
     <string name="settings">Настройки</string>
     <string name="settings_theme">Темная тема</string>
