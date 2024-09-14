@@ -6,6 +6,8 @@
         <item name="textColorPrimary">@color/yp_black</item>
         <item name="textColorSecondary">@color/yp_black</item>
         <item name="android:statusBarColor">?backgroundPrimaryColor</item>
+        <item name="iconColorPrimary">@color/yp_black</item>
+        <item name="iconColorSecondary">@color/yp_text_gray</item>
     </style>
 
     <style name="Theme.SearchBar" parent="Theme.PlaylistMaker">

@@ -77,8 +77,7 @@
         android:layout_height="24dp"
         android:layout_gravity="center"
         android:scaleType="center"
-        android:src="@drawable/arrow_forward_icon"
-        app:tint="?colorSecondary" />
+        android:src="@drawable/arrow_forward_icon" />
 
 
 </LinearLayout>

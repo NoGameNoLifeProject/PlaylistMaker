@@ -10,27 +10,37 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.Models.Track
 import com.practicum.playlistmaker.R
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-class SearchResultsViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+class SearchResultsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val trackArtwork: ImageView = itemView.findViewById(R.id.track_artwork)
     private val trackName: TextView = itemView.findViewById(R.id.track_name)
     private val trackArtist: TextView = itemView.findViewById(R.id.track_artist)
     private val trackTime: TextView = itemView.findViewById(R.id.track_time)
 
     fun bind(item: Track) {
-        Glide.with(itemView).load(item.artworkUrl100).placeholder(R.drawable.track_placeholder).centerCrop().transform(
-            RoundedCorners(dpToPx(2f, itemView.context))
-        ).into(trackArtwork)
+        Glide.with(itemView)
+            .load(item.artworkUrl100)
+            .placeholder(R.drawable.track_placeholder)
+            .centerCrop()
+            .transform(
+                RoundedCorners(dpToPx(2f, itemView.context))
+            )
+            .into(trackArtwork)
 
-        trackName.setText(item.trackName)
-        trackArtist.setText(item.artistName)
-        trackTime.setText(item.trackTime)
+        trackName.text = item.trackName
+        trackArtist.text = item.artistName
+        trackTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
+
+        trackArtist.requestLayout()
     }
 
     fun dpToPx(dp: Float, context: Context): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
-            context.resources.displayMetrics).toInt()
+            context.resources.displayMetrics
+        ).toInt()
     }
 }
