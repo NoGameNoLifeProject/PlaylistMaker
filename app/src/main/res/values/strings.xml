@@ -7,6 +7,8 @@
     <string name="search_no_results">Ничего не нашлось</string>
     <string name="search_no_internet">Проблемы со связью \n\n Загрузка не удалась. Проверьте подключение к интернету</string>
     <string name="search_no_internet_update_button">Обновить</string>
+    <string name="search_history">Вы искали</string>
+    <string name="search_history_clear_button">Очистить историю</string>
     <string name="itunes_api_base_url">https://itunes.apple.com</string>
     <string name="media">Медиатека</string>
     <string name="settings">Настройки</string>

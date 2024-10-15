@@ -39,11 +39,10 @@
         <item name="thumbTint">@color/yp_white</item>
         <item name="trackTint">@color/yp_text_gray</item>
     </style>
-    <style name="SearchUpdateButton">
+    <style name="SearchAdditionalButton">
         <item name="android:layout_gravity">center</item>
         <item name="android:layout_marginTop">@dimen/pd_l</item>
         <item name="cornerRadius">54dp</item>
-        <item name="android:text">@string/search_no_internet_update_button</item>
         <item name="backgroundTint">@color/yp_black</item>
         <item name="android:textColor">@color/yp_white</item>
         <item name="android:padding">6dp</item>

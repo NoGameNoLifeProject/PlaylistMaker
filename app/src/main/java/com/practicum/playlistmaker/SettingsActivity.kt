@@ -3,14 +3,13 @@ package com.practicum.playlistmaker
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity  : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +20,12 @@ class SettingsActivity  : AppCompatActivity() {
         val toolBar = findViewById<MaterialToolbar>(R.id.toolBar)
         toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
+        }
+
+        val themeSwitcher = findViewById<SwitchMaterial>(R.id.theme_switcher)
+        themeSwitcher.isChecked = (applicationContext as App).darkTheme
+        themeSwitcher.setOnCheckedChangeListener { _, checked ->
+            (applicationContext as App).switchTheme(checked)
         }
 
         val shareButton = findViewById<TextView>(R.id.share_button)
