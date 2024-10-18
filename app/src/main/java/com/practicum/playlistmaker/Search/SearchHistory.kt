@@ -8,8 +8,8 @@ import com.practicum.playlistmaker.Models.Track
 
 
 const val PREFERENCES_SEARCH_HISTORY = "search_history"
+private const val maxHistorySize = 10
 class SearchHistory(val sharedPrefs: SharedPreferences) {
-    private val maxHistorySize = 10
     private val gson: Gson = Gson()
     private val tracks: MutableList<Track> = getHistory().toMutableList()
 
@@ -46,6 +46,9 @@ class SearchHistory(val sharedPrefs: SharedPreferences) {
         return gson.fromJson(jsonString, type)
     }
 
+    fun isEmpty(): Boolean {
+        return tracks.isEmpty()
+    }
 
     fun clearHistory(){
         tracks.clear()
