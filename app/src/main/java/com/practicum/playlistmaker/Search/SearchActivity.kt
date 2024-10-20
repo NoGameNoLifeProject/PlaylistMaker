@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.Search
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,8 +20,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.Gson
 import com.practicum.playlistmaker.Models.Track
 import com.practicum.playlistmaker.Models.TracksResponse
+import com.practicum.playlistmaker.PlayerActivity
+import com.practicum.playlistmaker.PlayerActivity.Companion.TRACK
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.SHARED_PREFERENCES_SETTINGS
 import retrofit2.Call
@@ -65,7 +69,9 @@ class SearchActivity : AppCompatActivity() {
         itunesApi = retrofit.create(ItunesAPI::class.java)
 
         val sharedPrefs = getSharedPreferences(SHARED_PREFERENCES_SEARCH, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs)
+        val searchHistory = SearchHistory(sharedPrefs) {
+            openPlayer(it)
+        }
 
         toolBar = findViewById(R.id.toolBar)
         searchLayout = findViewById(R.id.search_layout)
@@ -81,6 +87,7 @@ class SearchActivity : AppCompatActivity() {
 
         searchResultsAdapter = SearchResultsAdapter(tracks) {
             searchHistory.addTrack(it)
+            openPlayer(it)
         }
 
         rvSearchResults.adapter = searchResultsAdapter
@@ -136,6 +143,12 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+
+    private fun openPlayer(track: Track){
+        val intent = Intent(this, PlayerActivity::class.java)
+        intent.putExtra(TRACK, Gson().toJson(track))
+        startActivity(intent)
     }
 
     private fun search() {
