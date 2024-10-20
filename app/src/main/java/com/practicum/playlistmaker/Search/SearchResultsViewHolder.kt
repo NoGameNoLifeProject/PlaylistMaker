@@ -13,7 +13,7 @@ import com.practicum.playlistmaker.R
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class SearchResultsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class SearchResultsViewHolder(itemView: View, private val onTrackClick: (Track) -> Unit) : RecyclerView.ViewHolder(itemView) {
     private val trackArtwork: ImageView = itemView.findViewById(R.id.track_artwork)
     private val trackName: TextView = itemView.findViewById(R.id.track_name)
     private val trackArtist: TextView = itemView.findViewById(R.id.track_artist)
@@ -34,6 +34,10 @@ class SearchResultsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView
         trackTime.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(item.trackTimeMillis)
 
         trackArtist.requestLayout()
+
+        itemView.setOnClickListener {
+            onTrackClick.invoke(item)
+        }
     }
 
     fun dpToPx(dp: Float, context: Context): Int {

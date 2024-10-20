@@ -22,29 +22,36 @@ import com.google.android.material.textfield.TextInputLayout
 import com.practicum.playlistmaker.Models.Track
 import com.practicum.playlistmaker.Models.TracksResponse
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.SHARED_PREFERENCES_SETTINGS
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+const val SHARED_PREFERENCES_SEARCH = "search"
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
 
     private lateinit var itunesApi: ItunesAPI
 
-    private val searchResultsAdapter = SearchResultsAdapter(tracks)
+    private lateinit var searchResultsAdapter: SearchResultsAdapter
 
     private lateinit var toolBar: MaterialToolbar
     private lateinit var searchLayout: TextInputLayout
     private lateinit var searchBar: TextInputEditText
+
     private lateinit var rvSearchResults: RecyclerView
+
     private lateinit var searchResultsErrors: LinearLayout
     private lateinit var searchResultsErrorsImage: ImageView
     private lateinit var searchResultsErrorsText: TextView
     private lateinit var searchResultsErrorsUpdate: Button
 
+    private lateinit var searchHistoryLayout: LinearLayout
+    private lateinit var rvSearchHistory: RecyclerView
+    private lateinit var searchHistoryClearButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +64,9 @@ class SearchActivity : AppCompatActivity() {
             .build()
         itunesApi = retrofit.create(ItunesAPI::class.java)
 
+        val sharedPrefs = getSharedPreferences(SHARED_PREFERENCES_SEARCH, MODE_PRIVATE)
+        val searchHistory = SearchHistory(sharedPrefs)
+
         toolBar = findViewById(R.id.toolBar)
         searchLayout = findViewById(R.id.search_layout)
         searchBar = findViewById(R.id.search)
@@ -65,8 +75,16 @@ class SearchActivity : AppCompatActivity() {
         searchResultsErrorsImage = findViewById(R.id.search_results_errors_image)
         searchResultsErrorsText = findViewById(R.id.search_results_errors_text)
         searchResultsErrorsUpdate = findViewById(R.id.search_results_errors_update)
+        searchHistoryLayout = findViewById(R.id.search_history)
+        rvSearchHistory = findViewById(R.id.rv_search_history)
+        searchHistoryClearButton = findViewById(R.id.search_history_clear_button)
+
+        searchResultsAdapter = SearchResultsAdapter(tracks) {
+            searchHistory.addTrack(it)
+        }
 
         rvSearchResults.adapter = searchResultsAdapter
+        rvSearchHistory.adapter = searchHistory.searchHistoryAdapter
 
         toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -86,6 +104,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                searchHistoryLayout.visibility = if (searchBar.hasFocus() && s?.isEmpty() == true && !searchHistory.isEmpty()) View.VISIBLE else View.GONE
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -101,6 +120,15 @@ class SearchActivity : AppCompatActivity() {
         }
 
         searchResultsErrorsUpdate.setOnClickListener { search() }
+
+        searchBar.setOnFocusChangeListener { view, hasFocus ->
+            searchHistoryLayout.visibility = if (hasFocus && (searchBar.text?.isEmpty() == true && !searchHistory.isEmpty())) View.VISIBLE else View.GONE
+        }
+
+        searchHistoryClearButton.setOnClickListener {
+            searchHistory.clearHistory()
+            searchHistoryLayout.visibility = View.GONE
+        }
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
