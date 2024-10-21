@@ -11,14 +11,16 @@ import androidx.constraintlayout.widget.Group
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.gson.Gson
 import com.practicum.playlistmaker.Models.Track
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var track: Track
 
-    private lateinit var backButton: ImageButton
+    private lateinit var toolBar: MaterialToolbar
     private lateinit var trackCover: ImageView
     private lateinit var trackName: TextView
     private lateinit var trackArtistName: TextView
@@ -38,7 +40,7 @@ class PlayerActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_player)
 
-        backButton = findViewById(R.id.backButton)
+        toolBar = findViewById(R.id.toolBar)
         trackCover = findViewById(R.id.cover)
         trackName = findViewById(R.id.track_name)
         trackArtistName = findViewById(R.id.track_artist)
@@ -53,7 +55,7 @@ class PlayerActivity : AppCompatActivity() {
         trackCountry = findViewById(R.id.track_country_value)
         collectionGroup = findViewById(R.id.collectionGroup)
 
-        backButton.setOnClickListener {
+        toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
@@ -71,8 +73,8 @@ class PlayerActivity : AppCompatActivity() {
         Glide.with(this)
             .load(track.getCoverArtwork())
             .placeholder(R.drawable.track_placeholder)
-            .centerCrop()
             .transform(
+                CenterCrop(),
                 RoundedCorners(resources.getDimensionPixelSize(R.dimen.player_cover_corner_radius))
             )
             .into(trackCover)
