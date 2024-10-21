@@ -23,6 +23,7 @@
             android:id="@+id/theme_switcher"
             style="@style/SettingsSwitch"
             android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/pd_l"
             android:paddingEnd="10dp"
             android:text="@string/settings_theme" />
 

@@ -9,12 +9,13 @@ import com.practicum.playlistmaker.Models.Track
 
 const val PREFERENCES_SEARCH_HISTORY = "search_history"
 private const val maxHistorySize = 10
-class SearchHistory(val sharedPrefs: SharedPreferences) {
+class SearchHistory(val sharedPrefs: SharedPreferences, private val onTrackClick: (Track) -> Unit) {
     private val gson: Gson = Gson()
     private val tracks: MutableList<Track> = getHistory().toMutableList()
 
     val searchHistoryAdapter = SearchResultsAdapter(tracks) {
         addTrack(it)
+        onTrackClick(it)
     }
 
     fun addTrack(track: Track){
