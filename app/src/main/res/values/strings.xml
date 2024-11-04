@@ -21,4 +21,17 @@
     <string name="settings_support_message">Спасибо разработчикам и разработчицам за крутое приложение!</string>
     <string name="settings_user_agreement">Пользовательское соглашение</string>
     <string name="settings_user_agreement_link">https://yandex.ru/legal/practicum_offer/</string>
+    <string name="player_track_length">Длительность</string>
+    <string name="player_track_collection">Альбом</string>
+    <string name="player_track_release_date">Год</string>
+    <string name="player_track_primary_genre">Жанр</string>
+    <string name="player_track_country">Страна</string>
+    <string name="player_track_name_placeholder">Название трека</string>
+    <string name="player_track_artist_placeholder">Исполнитель</string>
+    <string name="player_track_time_placeholder">0:30</string>
+    <string name="player_track_length_placeholder">5:35</string>
+    <string name="player_track_collection_placeholder">Альбом</string>
+    <string name="player_track_release_date_placeholder">1965</string>
+    <string name="player_track_primary_genre_placeholder">Жанр</string>
+    <string name="player_track_country_placeholder">Страна</string>
 </resources>
