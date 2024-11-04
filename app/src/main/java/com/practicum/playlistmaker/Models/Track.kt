@@ -12,7 +12,8 @@ data class Track(
     val collectionName: String?, // Название альбома
     val releaseDate: String, // Год релиза
     val primaryGenreName: String, // Жанр
-    val country: String //Страна исполнителя
+    val country: String, //Страна исполнителя
+    val previewUrl: String? //Url для воспроизведения
 ) {
     fun getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")
     fun getTrackLength() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)

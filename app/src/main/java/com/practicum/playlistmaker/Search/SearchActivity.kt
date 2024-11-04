@@ -2,6 +2,8 @@ package com.practicum.playlistmaker.Search
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -11,6 +13,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +40,7 @@ const val SHARED_PREFERENCES_SEARCH = "search"
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
+    private var trackClickAllowed = true
 
     private lateinit var itunesApi: ItunesAPI
 
@@ -45,6 +49,8 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var toolBar: MaterialToolbar
     private lateinit var searchLayout: TextInputLayout
     private lateinit var searchBar: TextInputEditText
+
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var rvSearchResults: RecyclerView
 
@@ -56,6 +62,9 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var searchHistoryLayout: LinearLayout
     private lateinit var rvSearchHistory: RecyclerView
     private lateinit var searchHistoryClearButton: Button
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable { search() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +85,7 @@ class SearchActivity : AppCompatActivity() {
         toolBar = findViewById(R.id.toolBar)
         searchLayout = findViewById(R.id.search_layout)
         searchBar = findViewById(R.id.search)
+        progressBar = findViewById(R.id.progressBar)
         rvSearchResults = findViewById(R.id.rv_search_results)
         searchResultsErrors = findViewById(R.id.search_results_errors)
         searchResultsErrorsImage = findViewById(R.id.search_results_errors_image)
@@ -112,6 +122,7 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 searchHistoryLayout.visibility = if (searchBar.hasFocus() && s?.isEmpty() == true && !searchHistory.isEmpty()) View.VISIBLE else View.GONE
+                searchDebounce()
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -119,12 +130,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
         searchBar.addTextChangedListener(searchTextWatcher)
-        searchBar.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                search()
-            }
-            false
-        }
 
         searchResultsErrorsUpdate.setOnClickListener { search() }
 
@@ -146,6 +151,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun openPlayer(track: Track){
+        if (!isTrackClickAllowed()) return
+
         val intent = Intent(this, PlayerActivity::class.java)
         intent.putExtra(TRACK, Gson().toJson(track))
         startActivity(intent)
@@ -157,6 +164,8 @@ class SearchActivity : AppCompatActivity() {
             searchResultsAdapter.notifyDataSetChanged()
             return
         }
+
+        toggleResultsState(SearchResultsStates.Loading)
 
         itunesApi.search(searchText).enqueue(object : Callback<TracksResponse> {
             override fun onResponse(
@@ -180,24 +189,49 @@ class SearchActivity : AppCompatActivity() {
         })
     }
 
+    private fun searchDebounce() {
+        mainHandler.removeCallbacks(searchRunnable)
+        mainHandler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
     private fun toggleResultsState(state: SearchResultsStates) {
         when (state) {
-            SearchResultsStates.TracksList -> {
+            SearchResultsStates.Loading -> {
+                rvSearchResults.visibility = View.GONE
                 searchResultsErrors.visibility = View.GONE
+                progressBar.visibility = View.VISIBLE
+            }
+            SearchResultsStates.TracksList -> {
+                progressBar.visibility = View.GONE
+                searchResultsErrors.visibility = View.GONE
+                rvSearchResults.visibility = View.VISIBLE
             }
             SearchResultsStates.NoResults -> {
+                rvSearchHistory.visibility = View.GONE
+                progressBar.visibility = View.GONE
                 searchResultsErrors.visibility = View.VISIBLE
                 searchResultsErrorsImage.setImageResource(R.drawable.no_results_icon)
                 searchResultsErrorsText.text = getString(R.string.search_no_results)
                 searchResultsErrorsUpdate.visibility = View.GONE
             }
             SearchResultsStates.NoInternet -> {
+                rvSearchHistory.visibility = View.GONE
+                progressBar.visibility = View.GONE
                 searchResultsErrors.visibility = View.VISIBLE
                 searchResultsErrorsImage.setImageResource(R.drawable.no_internet_icon)
                 searchResultsErrorsText.text = getString(R.string.search_no_internet)
                 searchResultsErrorsUpdate.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun isTrackClickAllowed() : Boolean {
+        val current = trackClickAllowed
+        if (trackClickAllowed) {
+            trackClickAllowed = false
+            mainHandler.postDelayed({ trackClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -213,10 +247,12 @@ class SearchActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val SEARCH_TEXT = "SEARCH_TEXT"
+        private const val SEARCH_TEXT = "SEARCH_TEXT"
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 
     enum class SearchResultsStates {
-        TracksList, NoResults, NoInternet
+        TracksList, NoResults, NoInternet, Loading
     }
 }
