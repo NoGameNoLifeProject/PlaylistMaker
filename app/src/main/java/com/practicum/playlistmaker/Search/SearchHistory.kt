@@ -1,10 +1,10 @@
 package com.practicum.playlistmaker.Search
 
 import android.content.SharedPreferences
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.practicum.playlistmaker.Models.Track
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.ui.search.SearchResultsAdapter
 
 
 const val PREFERENCES_SEARCH_HISTORY = "search_history"

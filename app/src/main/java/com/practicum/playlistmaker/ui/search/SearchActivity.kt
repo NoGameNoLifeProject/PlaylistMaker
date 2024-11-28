@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.Search
+package com.practicum.playlistmaker.ui.search
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,6 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -24,12 +23,13 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
-import com.practicum.playlistmaker.Models.Track
-import com.practicum.playlistmaker.Models.TracksResponse
-import com.practicum.playlistmaker.PlayerActivity
-import com.practicum.playlistmaker.PlayerActivity.Companion.TRACK
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.domain.models.TracksResponse
+import com.practicum.playlistmaker.ui.player.PlayerActivity
+import com.practicum.playlistmaker.ui.player.PlayerActivity.Companion.TRACK
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.SHARED_PREFERENCES_SETTINGS
+import com.practicum.playlistmaker.Search.ItunesAPI
+import com.practicum.playlistmaker.Search.SearchHistory
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
