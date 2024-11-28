@@ -7,7 +7,7 @@ interface ISearchHistoryInteractor {
     fun getSearchHistory(consumer: ISearchHistoryConsumer)
     fun clearSearchHistory()
 
-    interface ISearchHistoryConsumer {
+    fun interface ISearchHistoryConsumer {
         fun consume(tracks: List<Track>)
     }
 }

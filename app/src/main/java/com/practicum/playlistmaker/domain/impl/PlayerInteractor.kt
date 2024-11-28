@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker.domain.impl
 
 import com.practicum.playlistmaker.domain.api.IPlayerInteractor
+import com.practicum.playlistmaker.domain.models.EPlayerState
 import com.practicum.playlistmaker.domain.repository.IPlayerRepository
 
 class PlayerInteractor(private val repository: IPlayerRepository): IPlayerInteractor {
@@ -22,6 +23,10 @@ class PlayerInteractor(private val repository: IPlayerRepository): IPlayerIntera
 
     override fun getCurrentPosition(): Long {
         return repository.getCurrentPosition()
+    }
+
+    override fun getState(): EPlayerState {
+        return repository.getState()
     }
 
     override fun setOnPreparedListener(callback: () -> Unit) {

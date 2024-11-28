@@ -1,5 +1,5 @@
 package com.practicum.playlistmaker.domain.models
 
-enum class SearchResultsStates {
+enum class ESearchResultsStates {
     TracksList, NoResults, NoInternet, Loading
 }

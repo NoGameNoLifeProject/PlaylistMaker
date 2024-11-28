@@ -28,12 +28,12 @@ class SearchHistoryRepository(context: Context) : ISearchHistoryRepository {
         }
 
         val editor = sharedPref.edit()
-        editor.putString(com.practicum.playlistmaker.Search.PREFERENCES_SEARCH_HISTORY, gson.toJson(history))
+        editor.putString(PREFERENCES_SEARCH_HISTORY, gson.toJson(history))
         editor.apply()
     }
 
     override fun getSearchHistory(): MutableList<Track> {
-        val jsonString = sharedPref.getString(com.practicum.playlistmaker.Search.PREFERENCES_SEARCH_HISTORY, null) ?: return mutableListOf()
+        val jsonString = sharedPref.getString(PREFERENCES_SEARCH_HISTORY, null) ?: return mutableListOf()
         val type = object : TypeToken<MutableList<Track>>() {}.type;
         return gson.fromJson(jsonString, type)
     }

@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.Group
@@ -19,6 +20,9 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.gson.Gson
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.creator.Creator
+import com.practicum.playlistmaker.domain.api.IPlayerInteractor
+import com.practicum.playlistmaker.domain.models.EPlayerState
 import com.practicum.playlistmaker.domain.models.Track
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -42,10 +46,10 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var collectionGroup: Group
 
-    private var playerState = STATE_DEFAULT
-    private val mediaPlayer = MediaPlayer()
     private val mainHandler = Handler(Looper.getMainLooper())
     private lateinit var trackTimeRunnable: Runnable
+
+    private val playerInteractor = Creator.getPlayerInteractor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +78,6 @@ class PlayerActivity : AppCompatActivity() {
         track = Gson().fromJson(intent.getStringExtra(TRACK), Track::class.java)
 
         init()
-        preparePlayer()
 
         playButton.setOnClickListener {
             playbackControl()
@@ -87,7 +90,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun init(){
+    private fun init() {
         Glide.with(this)
             .load(track.getCoverArtwork())
             .placeholder(R.drawable.track_placeholder)
@@ -107,6 +110,24 @@ class PlayerActivity : AppCompatActivity() {
         trackReleaseDate.text = track.getShortReleaseDate()
         trackGenre.text = track.primaryGenreName
         trackCountry.text = track.country
+
+        if (track.previewUrl.isNullOrEmpty()) {
+            trackTime.text = getString(R.string.player_track_no_preview)
+            return
+        }
+
+        playerInteractor.setOnErrorListener {
+            trackTime.text = getString(R.string.player_track_no_preview)
+        }
+        playerInteractor.setOnPreparedListener {
+            playButton.isClickable = true
+        }
+        playerInteractor.setOnCompletionListener {
+            playButton.setImageResource(R.drawable.play_icon)
+            stopTrackTimeRunnable()
+            trackTime.text = getString(R.string.player_track_time_default)
+        }
+        playerInteractor.prepare(track.previewUrl!!)
     }
 
     private fun createTrackTimeRunnable(): Runnable {
@@ -115,9 +136,9 @@ class PlayerActivity : AppCompatActivity() {
                 trackTime.text = SimpleDateFormat(
                     "mm:ss",
                     Locale.getDefault()
-                ).format(mediaPlayer.currentPosition)
+                ).format(playerInteractor.getCurrentPosition())
 
-                if (playerState == STATE_PLAYING)
+                if (playerInteractor.getState() == EPlayerState.PLAYING)
                     mainHandler.postDelayed(this, TRACK_TIME_UPDATE_DELAY)
             }
         }
@@ -131,62 +152,43 @@ class PlayerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopTrackTimeRunnable()
-        mediaPlayer.release()
+        playerInteractor.release()
     }
 
     private fun playbackControl() {
-        when(playerState) {
-            STATE_PLAYING -> {
+        when (playerInteractor.getState()) {
+            EPlayerState.PLAYING -> {
                 pausePlayer()
             }
-            STATE_PREPARED, STATE_PAUSED -> {
+
+            EPlayerState.PREPARED, EPlayerState.PAUSED -> {
                 startPlayer()
             }
-        }
-    }
 
-    private fun preparePlayer() {
-        if (track.previewUrl.isNullOrEmpty()) {
-            trackTime.text = getString(R.string.player_track_no_preview)
-            return
-        } //TODO: Добавить ошибку об отсутсвии аудио
-
-        mediaPlayer.setDataSource(track.previewUrl)
-        mediaPlayer.prepareAsync()
-        mediaPlayer.setOnPreparedListener {
-            playButton.isClickable = true
-            playerState = STATE_PREPARED
-        }
-        mediaPlayer.setOnCompletionListener {
-            playButton.setImageResource(R.drawable.play_icon)
-            playerState = STATE_PREPARED
-            stopTrackTimeRunnable()
-            trackTime.text = getString(R.string.player_track_time_default)
+            EPlayerState.DEFAULT -> return
         }
     }
 
     private fun startPlayer() {
-        mediaPlayer.start()
+        playerInteractor.play()
         playButton.setImageResource(R.drawable.pause_icon)
-        playerState = STATE_PLAYING
 
         startTrackTimeRunnable()
     }
 
     private fun pausePlayer() {
-        mediaPlayer.pause()
+        playerInteractor.pause()
         playButton.setImageResource(R.drawable.play_icon)
-        playerState = STATE_PAUSED
 
         stopTrackTimeRunnable()
     }
 
-    private fun startTrackTimeRunnable(){
+    private fun startTrackTimeRunnable() {
         trackTimeRunnable = createTrackTimeRunnable()
         mainHandler.post(trackTimeRunnable)
     }
 
-    private fun stopTrackTimeRunnable(){
+    private fun stopTrackTimeRunnable() {
         if (!this::trackTimeRunnable.isInitialized) return
 
         mainHandler.removeCallbacks(trackTimeRunnable)
@@ -195,9 +197,5 @@ class PlayerActivity : AppCompatActivity() {
     companion object {
         const val TRACK = "track"
         private const val TRACK_TIME_UPDATE_DELAY = 500L
-        private const val STATE_DEFAULT = 0
-        private const val STATE_PREPARED = 1
-        private const val STATE_PLAYING = 2
-        private const val STATE_PAUSED = 3
     }
 }

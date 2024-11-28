@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker.data.repository
 
 import android.media.MediaPlayer
+import com.practicum.playlistmaker.domain.models.EPlayerState
 import com.practicum.playlistmaker.domain.repository.IPlayerRepository
 
 class PlayerRepository : IPlayerRepository {
@@ -8,6 +9,8 @@ class PlayerRepository : IPlayerRepository {
     private var onPreparedListener: (() -> Unit)? = null
     private var onCompletionListener: (() -> Unit)? = null
     private var onErrorListener: (() -> Unit)? = null
+
+    private var state: EPlayerState = EPlayerState.DEFAULT
 
     override fun prepare(url: String) {
         try {
@@ -26,14 +29,20 @@ class PlayerRepository : IPlayerRepository {
 
     override fun play() {
         mediaPlayer.start()
+        state = EPlayerState.PLAYING
     }
 
     override fun pause() {
         mediaPlayer.pause()
+        state = EPlayerState.PAUSED
     }
 
     override fun release() {
         mediaPlayer.release()
+    }
+
+    override fun getState(): EPlayerState {
+        return state
     }
 
     override fun getCurrentPosition(): Long {
@@ -41,10 +50,12 @@ class PlayerRepository : IPlayerRepository {
     }
 
     override fun setOnPreparedListener(callback: () -> Unit) {
+        state = EPlayerState.PREPARED
         onPreparedListener = callback
     }
 
     override fun setOnCompletionListener(callback: () -> Unit) {
+        state = EPlayerState.PREPARED
         onCompletionListener = callback
     }
 
