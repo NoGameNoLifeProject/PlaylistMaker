@@ -1,6 +1,9 @@
 package com.practicum.playlistmaker
 
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -16,6 +19,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.gson.Gson
 import com.practicum.playlistmaker.Models.Track
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
     private lateinit var track: Track
@@ -35,6 +40,12 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var trackCountry: TextView
 
     private lateinit var collectionGroup: Group
+
+    private var playerState = STATE_DEFAULT
+    private val mediaPlayer = MediaPlayer()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private lateinit var trackTimeRunnable: Runnable
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -60,7 +71,13 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         track = Gson().fromJson(intent.getStringExtra(TRACK), Track::class.java)
+
         init()
+        preparePlayer()
+
+        playButton.setOnClickListener {
+            playbackControl()
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -83,7 +100,7 @@ class PlayerActivity : AppCompatActivity() {
 
         trackName.text = track.trackName
         trackArtistName.text = track.artistName
-        //trackTime.text =
+        trackTime.text = getString(R.string.player_track_time_default)
         trackLength.text = track.getTrackLength()
         trackCollection.text = track.collectionName
         trackReleaseDate.text = track.getShortReleaseDate()
@@ -91,7 +108,95 @@ class PlayerActivity : AppCompatActivity() {
         trackCountry.text = track.country
     }
 
+    private fun createTrackTimeRunnable(): Runnable {
+        return object : Runnable {
+            override fun run() {
+                trackTime.text = SimpleDateFormat(
+                    "mm:ss",
+                    Locale.getDefault()
+                ).format(mediaPlayer.currentPosition)
+
+                if (playerState == STATE_PLAYING)
+                    mainHandler.postDelayed(this, TRACK_TIME_UPDATE_DELAY)
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        pausePlayer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopTrackTimeRunnable()
+        mediaPlayer.release()
+    }
+
+    private fun playbackControl() {
+        when(playerState) {
+            STATE_PLAYING -> {
+                pausePlayer()
+            }
+            STATE_PREPARED, STATE_PAUSED -> {
+                startPlayer()
+            }
+        }
+    }
+
+    private fun preparePlayer() {
+        if (track.previewUrl.isNullOrEmpty()) {
+            trackTime.text = getString(R.string.player_track_no_preview)
+            return
+        } //TODO: Добавить ошибку об отсутсвии аудио
+
+        mediaPlayer.setDataSource(track.previewUrl)
+        mediaPlayer.prepareAsync()
+        mediaPlayer.setOnPreparedListener {
+            playButton.isClickable = true
+            playerState = STATE_PREPARED
+        }
+        mediaPlayer.setOnCompletionListener {
+            playButton.setImageResource(R.drawable.play_icon)
+            playerState = STATE_PREPARED
+            stopTrackTimeRunnable()
+            trackTime.text = getString(R.string.player_track_time_default)
+        }
+    }
+
+    private fun startPlayer() {
+        mediaPlayer.start()
+        playButton.setImageResource(R.drawable.pause_icon)
+        playerState = STATE_PLAYING
+
+        startTrackTimeRunnable()
+    }
+
+    private fun pausePlayer() {
+        mediaPlayer.pause()
+        playButton.setImageResource(R.drawable.play_icon)
+        playerState = STATE_PAUSED
+
+        stopTrackTimeRunnable()
+    }
+
+    private fun startTrackTimeRunnable(){
+        trackTimeRunnable = createTrackTimeRunnable()
+        mainHandler.post(trackTimeRunnable)
+    }
+
+    private fun stopTrackTimeRunnable(){
+        if (!this::trackTimeRunnable.isInitialized) return
+
+        mainHandler.removeCallbacks(trackTimeRunnable)
+    }
+
     companion object {
         const val TRACK = "track"
+        private const val TRACK_TIME_UPDATE_DELAY = 500L
+        private const val STATE_DEFAULT = 0
+        private const val STATE_PREPARED = 1
+        private const val STATE_PLAYING = 2
+        private const val STATE_PAUSED = 3
     }
 }
