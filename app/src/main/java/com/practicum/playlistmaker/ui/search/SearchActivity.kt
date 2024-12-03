@@ -18,6 +18,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
@@ -121,7 +122,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                searchHistoryLayout.visibility = if (searchBar.hasFocus() && s?.isEmpty() == true && history.isNotEmpty()) View.VISIBLE else View.GONE
+                searchHistoryLayout.isVisible = searchBar.hasFocus() && s?.isEmpty() == true && history.isNotEmpty()
                 searchDebounce()
             }
 
@@ -134,12 +135,12 @@ class SearchActivity : AppCompatActivity() {
         searchResultsErrorsUpdate.setOnClickListener { search() }
 
         searchBar.setOnFocusChangeListener { view, hasFocus ->
-            searchHistoryLayout.visibility = if (hasFocus && (searchBar.text?.isEmpty() == true && history.isNotEmpty())) View.VISIBLE else View.GONE
+            searchHistoryLayout.isVisible = hasFocus && searchBar.text?.isEmpty() == true && history.isNotEmpty()
         }
 
         searchHistoryClearButton.setOnClickListener {
             searchHistoryInteractor.clearSearchHistory()
-            searchHistoryLayout.visibility = View.GONE
+            searchHistoryLayout.isVisible = false
         }
 
 
