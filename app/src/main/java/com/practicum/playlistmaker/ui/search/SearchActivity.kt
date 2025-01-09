@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.Search
+package com.practicum.playlistmaker.ui.search
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,6 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -19,32 +18,27 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
-import com.practicum.playlistmaker.Models.Track
-import com.practicum.playlistmaker.Models.TracksResponse
-import com.practicum.playlistmaker.PlayerActivity
-import com.practicum.playlistmaker.PlayerActivity.Companion.TRACK
+import com.practicum.playlistmaker.domain.models.Track
+import com.practicum.playlistmaker.ui.player.PlayerActivity
+import com.practicum.playlistmaker.ui.player.PlayerActivity.Companion.TRACK
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.SHARED_PREFERENCES_SETTINGS
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.practicum.playlistmaker.creator.Creator
+import com.practicum.playlistmaker.domain.models.ESearchResultsStates
 
-const val SHARED_PREFERENCES_SEARCH = "search"
 class SearchActivity : AppCompatActivity() {
     private var searchText: String = ""
     private val tracks: MutableList<Track> = mutableListOf()
+    private val history: MutableList<Track> = mutableListOf()
     private var trackClickAllowed = true
 
-    private lateinit var itunesApi: ItunesAPI
-
     private lateinit var searchResultsAdapter: SearchResultsAdapter
+    private lateinit var searchHistoryAdapter: SearchResultsAdapter
 
     private lateinit var toolBar: MaterialToolbar
     private lateinit var searchLayout: TextInputLayout
@@ -65,22 +59,15 @@ class SearchActivity : AppCompatActivity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val searchRunnable = Runnable { search() }
+    private var searchCallbackRunnable: Runnable? = null
+
+    private val tracksInteractor = Creator.getTracksInteractor()
+    private val searchHistoryInteractor = Creator.getSearchHistoryInteractor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_search)
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(getString(R.string.itunes_api_base_url))
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        itunesApi = retrofit.create(ItunesAPI::class.java)
-
-        val sharedPrefs = getSharedPreferences(SHARED_PREFERENCES_SEARCH, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs) {
-            openPlayer(it)
-        }
 
         toolBar = findViewById(R.id.toolBar)
         searchLayout = findViewById(R.id.search_layout)
@@ -96,12 +83,26 @@ class SearchActivity : AppCompatActivity() {
         searchHistoryClearButton = findViewById(R.id.search_history_clear_button)
 
         searchResultsAdapter = SearchResultsAdapter(tracks) {
-            searchHistory.addTrack(it)
+            searchHistoryInteractor.addSearchHistory(it)
+            searchHistoryInteractor.getSearchHistory {tracks ->
+                updateHistory(tracks)
+            }
+            openPlayer(it)
+        }
+        searchHistoryAdapter = SearchResultsAdapter(history) {
+            searchHistoryInteractor.addSearchHistory(it)
+            searchHistoryInteractor.getSearchHistory {tracks ->
+                updateHistory(tracks)
+            }
             openPlayer(it)
         }
 
+        searchHistoryInteractor.getSearchHistory {tracks ->
+            updateHistory(tracks)
+        }
+
         rvSearchResults.adapter = searchResultsAdapter
-        rvSearchHistory.adapter = searchHistory.searchHistoryAdapter
+        rvSearchHistory.adapter = searchHistoryAdapter
 
         toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -113,7 +114,7 @@ class SearchActivity : AppCompatActivity() {
             searchBar.setText("")
             tracks.clear()
             searchResultsAdapter.notifyDataSetChanged()
-            toggleResultsState(SearchResultsStates.TracksList)
+            toggleResultsState(ESearchResultsStates.TracksList)
         }
 
         val searchTextWatcher = object : TextWatcher {
@@ -121,7 +122,7 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                searchHistoryLayout.visibility = if (searchBar.hasFocus() && s?.isEmpty() == true && !searchHistory.isEmpty()) View.VISIBLE else View.GONE
+                searchHistoryLayout.isVisible = searchBar.hasFocus() && s?.isEmpty() == true && history.isNotEmpty()
                 searchDebounce()
             }
 
@@ -134,12 +135,12 @@ class SearchActivity : AppCompatActivity() {
         searchResultsErrorsUpdate.setOnClickListener { search() }
 
         searchBar.setOnFocusChangeListener { view, hasFocus ->
-            searchHistoryLayout.visibility = if (hasFocus && (searchBar.text?.isEmpty() == true && !searchHistory.isEmpty())) View.VISIBLE else View.GONE
+            searchHistoryLayout.isVisible = hasFocus && searchBar.text?.isEmpty() == true && history.isNotEmpty()
         }
 
         searchHistoryClearButton.setOnClickListener {
-            searchHistory.clearHistory()
-            searchHistoryLayout.visibility = View.GONE
+            searchHistoryInteractor.clearSearchHistory()
+            searchHistoryLayout.isVisible = false
         }
 
 
@@ -148,6 +149,12 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+
+    private fun updateHistory(tracks: List<Track>){
+        history.clear()
+        history.addAll(tracks)
+        searchHistoryAdapter.notifyDataSetChanged()
     }
 
     private fun openPlayer(track: Track){
@@ -165,28 +172,17 @@ class SearchActivity : AppCompatActivity() {
             return
         }
 
-        toggleResultsState(SearchResultsStates.Loading)
+        toggleResultsState(ESearchResultsStates.Loading)
 
-        itunesApi.search(searchText).enqueue(object : Callback<TracksResponse> {
-            override fun onResponse(
-                call: Call<TracksResponse>,
-                response: Response<TracksResponse>
-            ) {
-                if (response.isSuccessful) {
-                    tracks.clear()
-                    val results = response.body()?.results
-                    if (results?.isNotEmpty() == true) {
-                        tracks.addAll(results)
-                    }
-                    searchResultsAdapter.notifyDataSetChanged()
-                    toggleResultsState(if (tracks.isEmpty()) SearchResultsStates.NoResults else SearchResultsStates.TracksList)
-                }
+        tracksInteractor.searchTracks(searchText) {
+            searchCallbackRunnable = Runnable {
+                tracks.clear()
+                tracks.addAll(it)
+                searchResultsAdapter.notifyDataSetChanged()
+                toggleResultsState(if (tracks.isEmpty()) ESearchResultsStates.NoResults else ESearchResultsStates.TracksList)
             }
-
-            override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
-                toggleResultsState(SearchResultsStates.NoInternet)
-            }
-        })
+            mainHandler.post(searchCallbackRunnable!!)
+        }
     }
 
     private fun searchDebounce() {
@@ -194,19 +190,19 @@ class SearchActivity : AppCompatActivity() {
         mainHandler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
-    private fun toggleResultsState(state: SearchResultsStates) {
+    private fun toggleResultsState(state: ESearchResultsStates) {
         when (state) {
-            SearchResultsStates.Loading -> {
+            ESearchResultsStates.Loading -> {
                 rvSearchResults.visibility = View.GONE
                 searchResultsErrors.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
             }
-            SearchResultsStates.TracksList -> {
+            ESearchResultsStates.TracksList -> {
                 progressBar.visibility = View.GONE
                 searchResultsErrors.visibility = View.GONE
                 rvSearchResults.visibility = View.VISIBLE
             }
-            SearchResultsStates.NoResults -> {
+            ESearchResultsStates.NoResults -> {
                 rvSearchHistory.visibility = View.GONE
                 progressBar.visibility = View.GONE
                 searchResultsErrors.visibility = View.VISIBLE
@@ -214,7 +210,7 @@ class SearchActivity : AppCompatActivity() {
                 searchResultsErrorsText.text = getString(R.string.search_no_results)
                 searchResultsErrorsUpdate.visibility = View.GONE
             }
-            SearchResultsStates.NoInternet -> {
+            ESearchResultsStates.NoInternet -> {
                 rvSearchHistory.visibility = View.GONE
                 progressBar.visibility = View.GONE
                 searchResultsErrors.visibility = View.VISIBLE
@@ -250,9 +246,5 @@ class SearchActivity : AppCompatActivity() {
         private const val SEARCH_TEXT = "SEARCH_TEXT"
         private const val CLICK_DEBOUNCE_DELAY = 1000L
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
-    }
-
-    enum class SearchResultsStates {
-        TracksList, NoResults, NoInternet, Loading
     }
 }
