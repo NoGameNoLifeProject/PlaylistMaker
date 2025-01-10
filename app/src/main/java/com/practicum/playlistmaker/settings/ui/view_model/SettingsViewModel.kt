@@ -25,18 +25,6 @@ class SettingsViewModel(application: Application,
         }
     }
 
-    companion object {
-        fun getViewModelFactory(
-            application: Application,
-            sharingInteractor: ISharingInteractor,
-            themeInteractor: IThemeInteractor
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SettingsViewModel(application, themeInteractor, sharingInteractor)
-            }
-        }
-    }
-
     fun setTheme(isDark: Boolean) {
         themeInteractor.setTheme(ThemeSettings(isDark))
     }
@@ -51,5 +39,17 @@ class SettingsViewModel(application: Application,
 
     fun termsOfUse() {
         sharingInteractor.openTerms()
+    }
+
+    companion object {
+        fun getViewModelFactory(
+            application: Application,
+            sharingInteractor: ISharingInteractor,
+            themeInteractor: IThemeInteractor
+        ): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                SettingsViewModel(application, themeInteractor, sharingInteractor)
+            }
+        }
     }
 }

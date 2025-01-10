@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.practicum.playlistmaker.R
@@ -11,7 +12,7 @@ import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.databinding.ActivitySettingsBinding
 import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
 
-class SettingsActivity  : ComponentActivity() {
+class SettingsActivity  : AppCompatActivity() {
 
     private val viewModel by viewModels<SettingsViewModel> {SettingsViewModel.getViewModelFactory(
         application,
