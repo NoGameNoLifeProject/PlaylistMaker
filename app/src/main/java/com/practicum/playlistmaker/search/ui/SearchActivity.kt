@@ -21,7 +21,7 @@ import com.practicum.playlistmaker.databinding.ActivitySearchBinding
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.player.ui.PlayerActivity
 import com.practicum.playlistmaker.player.ui.PlayerActivity.Companion.TRACK
-import com.practicum.playlistmaker.search.domain.models.SearchState
+import com.practicum.playlistmaker.search.domain.models.SearchScreenState
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
 
 class SearchActivity : AppCompatActivity() {
@@ -123,18 +123,21 @@ class SearchActivity : AppCompatActivity() {
     private fun openPlayer(track: Track){
         if (!isTrackClickAllowed()) return
 
+//        val intent = Intent(this, PlayerActivity::class.java)
+//        intent.putExtra(TRACK, Gson().toJson(track))
+//        startActivity(intent)
         val intent = Intent(this, PlayerActivity::class.java)
-        intent.putExtra(TRACK, Gson().toJson(track))
+        intent.putExtra(TRACK, track)
         startActivity(intent)
     }
 
-    private fun render(state: SearchState) {
+    private fun render(state: SearchScreenState) {
         when (state) {
-            is SearchState.Loading -> showLoading()
-            is SearchState.Content -> showContent(state.tracks)
-            is SearchState.History -> showHistory()
-            is SearchState.Error -> showError()
-            is SearchState.Empty -> showEmpty()
+            is SearchScreenState.Loading -> showLoading()
+            is SearchScreenState.Content -> showContent(state.tracks)
+            is SearchScreenState.History -> showHistory()
+            is SearchScreenState.Error -> showError()
+            is SearchScreenState.Empty -> showEmpty()
         }
     }
 

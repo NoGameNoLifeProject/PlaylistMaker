@@ -8,9 +8,6 @@ interface IPlayerInteractor {
     fun pause()
     fun release()
     fun getCurrentPosition(): Long
-    fun getState(): EPlayerState
 
-    fun setOnPreparedListener(callback: () -> Unit)
-    fun setOnCompletionListener(callback: () -> Unit)
-    fun setOnErrorListener(callback: () -> Unit)
+    fun setOnStateChangeListener(callback: (state: EPlayerState) -> Unit)
 }

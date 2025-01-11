@@ -25,19 +25,7 @@ class PlayerInteractor(private val repository: IPlayerRepository): IPlayerIntera
         return repository.getCurrentPosition()
     }
 
-    override fun getState(): EPlayerState {
-        return repository.getState()
-    }
-
-    override fun setOnPreparedListener(callback: () -> Unit) {
-        repository.setOnPreparedListener(callback)
-    }
-
-    override fun setOnCompletionListener(callback: () -> Unit) {
-        repository.setOnCompletionListener(callback)
-    }
-
-    override fun setOnErrorListener(callback: () -> Unit) {
-        repository.setOnErrorListener(callback)
+    override fun setOnStateChangeListener(callback: (state: EPlayerState) -> Unit) {
+        repository.setOnStateChangeListener(callback)
     }
 }

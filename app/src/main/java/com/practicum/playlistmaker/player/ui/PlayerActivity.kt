@@ -1,83 +1,64 @@
 package com.practicum.playlistmaker.player.ui
 
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.Group
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.gson.Gson
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.creator.Creator
-import com.practicum.playlistmaker.player.domain.models.EPlayerState
+import com.practicum.playlistmaker.databinding.ActivityPlayerBinding
+import com.practicum.playlistmaker.player.domain.models.PlayerScreenState
+import com.practicum.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.practicum.playlistmaker.search.domain.models.Track
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
-    private lateinit var track: Track
+    private val viewModel by viewModels<PlayerViewModel> {
+        val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(TRACK, Track::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(TRACK) as? Track
+        }
 
-    private lateinit var toolBar: MaterialToolbar
-    private lateinit var trackCover: ImageView
-    private lateinit var trackName: TextView
-    private lateinit var trackArtistName: TextView
-    private lateinit var addPlayListButton: ImageButton
-    private lateinit var playButton: ImageButton
-    private lateinit var addFavoritesButton: ImageButton
-    private lateinit var trackTime: TextView
-    private lateinit var trackLength: TextView
-    private lateinit var trackCollection: TextView
-    private lateinit var trackReleaseDate: TextView
-    private lateinit var trackGenre: TextView
-    private lateinit var trackCountry: TextView
+        PlayerViewModel.getViewModelFactory(
+            track!!,
+            Creator.getPlayerInteractor())
+    }
 
-    private lateinit var collectionGroup: Group
-
-    private val mainHandler = Handler(Looper.getMainLooper())
-    private lateinit var trackTimeRunnable: Runnable
-
-    private val playerInteractor = Creator.getPlayerInteractor()
+    private lateinit var binding: ActivityPlayerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_player)
 
-        toolBar = findViewById(R.id.toolBar)
-        trackCover = findViewById(R.id.cover)
-        trackName = findViewById(R.id.track_name)
-        trackArtistName = findViewById(R.id.track_artist)
-        addPlayListButton = findViewById(R.id.addPlaylistButton)
-        playButton = findViewById(R.id.playButton)
-        addFavoritesButton = findViewById(R.id.addFavoritesButton)
-        trackTime = findViewById(R.id.track_time)
-        trackLength = findViewById(R.id.track_length_value)
-        trackCollection = findViewById(R.id.track_collection_value)
-        trackReleaseDate = findViewById(R.id.track_release_date_value)
-        trackGenre = findViewById(R.id.track_primary_genre_value)
-        trackCountry = findViewById(R.id.track_country_value)
-        collectionGroup = findViewById(R.id.collectionGroup)
+        binding = ActivityPlayerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        toolBar.setOnClickListener {
+        binding.toolBar.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        track = Gson().fromJson(intent.getStringExtra(TRACK), Track::class.java)
+        binding.playButton.setOnClickListener {
+            viewModel.handlePlayback()
+        }
 
-        init()
+        viewModel.screenState.observe(this) {
+            render(it)
+        }
 
-        playButton.setOnClickListener {
-            playbackControl()
+        viewModel.currentTrackTime.observe(this) {
+            binding.trackTime.text = it
+        }
+
+        viewModel.playButtonState.observe(this) {
+            binding.playButton.setImageResource(it)
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -87,7 +68,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun init() {
+    private fun init(track: Track, error: Boolean = false) {
         Glide.with(this)
             .load(track.getCoverArtwork())
             .placeholder(R.drawable.track_placeholder)
@@ -95,104 +76,34 @@ class PlayerActivity : AppCompatActivity() {
                 CenterCrop(),
                 RoundedCorners(resources.getDimensionPixelSize(R.dimen.player_cover_corner_radius))
             )
-            .into(trackCover)
+            .into(binding.cover)
 
-        collectionGroup.visibility = if (track.collectionName == null) View.GONE else View.VISIBLE
+        binding.collectionGroup.visibility = if (track.collectionName == null) View.GONE else View.VISIBLE
 
-        trackName.text = track.trackName
-        trackArtistName.text = track.artistName
-        trackTime.text = getString(R.string.player_track_time_default)
-        trackLength.text = track.getTrackLength()
-        trackCollection.text = track.collectionName
-        trackReleaseDate.text = track.getShortReleaseDate()
-        trackGenre.text = track.primaryGenreName
-        trackCountry.text = track.country
+        binding.trackName.text = track.trackName
+        binding.trackArtist.text = track.artistName
+        binding.trackTime.text = getString(R.string.player_track_time_default)
+        binding.trackLengthValue.text = track.getTrackLength()
+        binding.trackCollectionValue.text = track.collectionName
+        binding.trackReleaseDateValue.text = track.getShortReleaseDate()
+        binding.trackPrimaryGenreValue.text = track.primaryGenreName
+        binding.trackCountryValue.text = track.country
 
-        if (track.previewUrl.isNullOrEmpty()) {
-            trackTime.text = getString(R.string.player_track_no_preview)
+        if (error) {
+            binding.trackTime.text = getString(R.string.player_track_no_preview)
             return
         }
+    }
 
-        playerInteractor.setOnErrorListener {
-            trackTime.text = getString(R.string.player_track_no_preview)
+    private fun render(state: PlayerScreenState) {
+        when (state) {
+            is PlayerScreenState.Loading -> {}
+            is PlayerScreenState.Content -> init(state.track)
+            is PlayerScreenState.Error -> init(state.track, true)
         }
-        playerInteractor.setOnPreparedListener {
-            playButton.isClickable = true
-        }
-        playerInteractor.setOnCompletionListener {
-            playButton.setImageResource(R.drawable.play_icon)
-            stopTrackTimeRunnable()
-            trackTime.text = getString(R.string.player_track_time_default)
-        }
-        playerInteractor.prepare(track.previewUrl!!)
-    }
-
-    private fun createTrackTimeRunnable(): Runnable {
-        return object : Runnable {
-            override fun run() {
-                trackTime.text = SimpleDateFormat(
-                    "mm:ss",
-                    Locale.getDefault()
-                ).format(playerInteractor.getCurrentPosition())
-
-                if (playerInteractor.getState() == EPlayerState.PLAYING)
-                    mainHandler.postDelayed(this, TRACK_TIME_UPDATE_DELAY)
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        pausePlayer()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        stopTrackTimeRunnable()
-        playerInteractor.release()
-    }
-
-    private fun playbackControl() {
-        when (playerInteractor.getState()) {
-            EPlayerState.PLAYING -> {
-                pausePlayer()
-            }
-
-            EPlayerState.PREPARED, EPlayerState.PAUSED -> {
-                startPlayer()
-            }
-
-            EPlayerState.DEFAULT -> return
-        }
-    }
-
-    private fun startPlayer() {
-        playerInteractor.play()
-        playButton.setImageResource(R.drawable.pause_icon)
-
-        startTrackTimeRunnable()
-    }
-
-    private fun pausePlayer() {
-        playerInteractor.pause()
-        playButton.setImageResource(R.drawable.play_icon)
-
-        stopTrackTimeRunnable()
-    }
-
-    private fun startTrackTimeRunnable() {
-        trackTimeRunnable = createTrackTimeRunnable()
-        mainHandler.post(trackTimeRunnable)
-    }
-
-    private fun stopTrackTimeRunnable() {
-        if (!this::trackTimeRunnable.isInitialized) return
-
-        mainHandler.removeCallbacks(trackTimeRunnable)
     }
 
     companion object {
         const val TRACK = "track"
-        private const val TRACK_TIME_UPDATE_DELAY = 500L
     }
 }

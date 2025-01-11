@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.practicum.playlistmaker.search.domain.api.ISearchHistoryInteractor
 import com.practicum.playlistmaker.search.domain.api.ITracksInteractor
 import com.practicum.playlistmaker.search.domain.models.ISearchResult
-import com.practicum.playlistmaker.search.domain.models.SearchState
+import com.practicum.playlistmaker.search.domain.models.SearchScreenState
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.utils.SingleLiveEvent
 
@@ -24,13 +24,13 @@ class SearchViewModel(
 ) : AndroidViewModel(application) {
 
     private val handler = Handler(Looper.getMainLooper())
-    private val _state = MutableLiveData<SearchState>()
+    private val _state = MutableLiveData<SearchScreenState>()
     private val _searchQuery = MutableLiveData("")
     private val _showToast = SingleLiveEvent<String>()
     private val _searchHistory = MutableLiveData<List<Track>>(emptyList())
     private var latestSearchText: String? = null
 
-    val state: LiveData<SearchState>
+    val state: LiveData<SearchScreenState>
         get() = _state
 
     val searchQuery: LiveData<String>
@@ -63,29 +63,29 @@ class SearchViewModel(
 
     private fun searchRequest(query: String) {
         if (query.isEmpty()) return
-        renderState(SearchState.Loading)
+        renderState(SearchScreenState.Loading)
 
         searchTracksInteractor.searchTracks(query) {
             when (it) {
                 is ISearchResult.Data -> {
                     if (it.data.isEmpty())
-                        renderState(SearchState.Empty)
+                        renderState(SearchScreenState.Empty)
                     else
-                        renderState(SearchState.Content(it.data))
+                        renderState(SearchScreenState.Content(it.data))
                 }
                 is ISearchResult.Error -> {
-                    renderState(SearchState.Error)
+                    renderState(SearchScreenState.Error)
                     _showToast.postValue(it.message)
                 }
                 is ISearchResult.NetworkError -> {
-                    renderState(SearchState.Error)
+                    renderState(SearchScreenState.Error)
                     _showToast.postValue(it.message)
                 }
             }
         }
     }
 
-    private fun renderState(state: SearchState) {
+    private fun renderState(state: SearchScreenState) {
         _state.postValue(state)
     }
 
@@ -101,7 +101,7 @@ class SearchViewModel(
     }
 
     fun clearSearchHistory() {
-        renderState(SearchState.Content(listOf()))
+        renderState(SearchScreenState.Content(listOf()))
         searchHistoryInteractor.clearSearchHistory()
         reloadSearchHistory()
     }
@@ -109,7 +109,7 @@ class SearchViewModel(
     fun clearSearchQuery() {
         latestSearchText = ""
         _searchQuery.value = ""
-        renderState(SearchState.Content(listOf()))
+        renderState(SearchScreenState.Content(listOf()))
         searchHistoryShow()
         handler.removeCallbacksAndMessages(SEARCH_REQUEST_TOKEN)
     }
@@ -117,7 +117,7 @@ class SearchViewModel(
     private fun searchHistoryShow() {
         reloadSearchHistory()
         if (_searchHistory.value!!.isNotEmpty())
-            renderState(SearchState.History)
+            renderState(SearchScreenState.History)
     }
 
     fun onSearchFocus() {
