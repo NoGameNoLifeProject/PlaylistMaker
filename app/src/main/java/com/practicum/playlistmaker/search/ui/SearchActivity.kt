@@ -26,7 +26,6 @@ import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
 class SearchActivity : AppCompatActivity() {
     private val viewModel by viewModels<SearchViewModel> {
         SearchViewModel.getViewModelFactory(
-        application,
         Creator.getTracksInteractor(),
         Creator.getSearchHistoryInteractor())
     }
@@ -66,10 +65,6 @@ class SearchActivity : AppCompatActivity() {
             openPlayer(it)
         }
         binding.rvSearchHistory.adapter = searchHistoryAdapter
-
-        viewModel.searchHistory.observe(this) {
-            searchHistoryAdapter.updateData(it)
-        }
 
         viewModel.searchQuery.observe(this) { query ->
             if (binding.search.text.toString() != query) {
@@ -122,9 +117,6 @@ class SearchActivity : AppCompatActivity() {
     private fun openPlayer(track: Track){
         if (!isTrackClickAllowed()) return
 
-//        val intent = Intent(this, PlayerActivity::class.java)
-//        intent.putExtra(TRACK, Gson().toJson(track))
-//        startActivity(intent)
         val intent = Intent(this, PlayerActivity::class.java)
         intent.putExtra(TRACK, track)
         startActivity(intent)
@@ -134,7 +126,7 @@ class SearchActivity : AppCompatActivity() {
         when (state) {
             is SearchScreenState.Loading -> showLoading()
             is SearchScreenState.Content -> showContent(state.tracks)
-            is SearchScreenState.History -> showHistory()
+            is SearchScreenState.History -> showHistory(state.tracks)
             is SearchScreenState.Error -> showError()
             is SearchScreenState.Empty -> showEmpty()
         }
@@ -166,8 +158,9 @@ class SearchActivity : AppCompatActivity() {
         binding.rvSearchResults.visibility = View.VISIBLE
     }
 
-    private fun showHistory() {
+    private fun showHistory(tracks: List<Track>) {
         hideAll()
+        searchHistoryAdapter.updateData(tracks)
         binding.searchHistory.visibility = View.VISIBLE
     }
 

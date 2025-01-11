@@ -1,12 +1,11 @@
 package com.practicum.playlistmaker.search.ui.view_model
 
-import android.app.Application
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -18,16 +17,15 @@ import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.utils.SingleLiveEvent
 
 class SearchViewModel(
-    application: Application,
     private val searchTracksInteractor: ITracksInteractor,
     private val searchHistoryInteractor: ISearchHistoryInteractor
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val _state = MutableLiveData<SearchScreenState>()
     private val _searchQuery = MutableLiveData("")
     private val _showToast = SingleLiveEvent<String>()
-    private val _searchHistory = MutableLiveData<List<Track>>(emptyList())
+    private val _searchHistory: MutableList<Track> = mutableListOf()
     private var latestSearchText: String? = null
 
     val state: LiveData<SearchScreenState>
@@ -38,9 +36,6 @@ class SearchViewModel(
 
     val showToast: LiveData<String>
         get() = _showToast
-
-    val searchHistory: LiveData<List<Track>>
-        get() = _searchHistory
 
     fun searchDebounce(changedText: String) {
         if (latestSearchText == changedText) return
@@ -91,7 +86,10 @@ class SearchViewModel(
 
     private fun reloadSearchHistory() {
         searchHistoryInteractor.getSearchHistory {
-            _searchHistory.value = it
+            _searchHistory.clear()
+            _searchHistory.addAll(it)
+            if (_state.value is SearchScreenState.History)
+                renderState(SearchScreenState.History(_searchHistory))
         }
     }
 
@@ -116,8 +114,8 @@ class SearchViewModel(
 
     private fun searchHistoryShow() {
         reloadSearchHistory()
-        if (_searchHistory.value!!.isNotEmpty())
-            renderState(SearchScreenState.History)
+        if (_searchHistory.isNotEmpty())
+            renderState(SearchScreenState.History(_searchHistory))
     }
 
     fun onSearchFocus() {
@@ -130,12 +128,11 @@ class SearchViewModel(
         private const val SEARCH_DEBOUNCE_DELAY = 1000L
         private val SEARCH_REQUEST_TOKEN = Any()
         fun getViewModelFactory(
-            application: Application,
             searchTracksInteractor: ITracksInteractor,
             searchHistoryInteractor: ISearchHistoryInteractor
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                SearchViewModel(application, searchTracksInteractor, searchHistoryInteractor)
+                SearchViewModel(searchTracksInteractor, searchHistoryInteractor)
             }
         }
     }

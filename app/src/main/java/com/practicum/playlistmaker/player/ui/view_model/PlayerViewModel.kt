@@ -26,8 +26,8 @@ class PlayerViewModel(
     private val handler = Handler(Looper.getMainLooper())
     private var _playerState = EPlayerState.DEFAULT
     private val _screenState = MutableLiveData<PlayerScreenState>()
-    private val _currentTrackTime = MutableLiveData<String>()
-    private val _playButtonState = MutableLiveData<Int>()
+    private var _currentTrackTime = "00:00"
+    private var _playButtonState = R.drawable.play_icon
 
     private val dataFormat by lazy {
         SimpleDateFormat(
@@ -38,23 +38,16 @@ class PlayerViewModel(
     val screenState: LiveData<PlayerScreenState>
         get() = _screenState
 
-    val currentTrackTime: LiveData<String>
-        get() = _currentTrackTime
-
-    val playButtonState: LiveData<Int>
-        get() = _playButtonState
-
-
     init {
         setupPlayer()
     }
 
     private fun setupPlayer() {
         if (track.previewUrl.isNullOrEmpty()) {
-            _screenState.value = PlayerScreenState.Error(track)
+            _screenState.value = PlayerScreenState.Error(track, _currentTrackTime, _playButtonState)
             return
         }
-        _screenState.value = PlayerScreenState.Content(track)
+        _screenState.value = PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
 
         playerInteractor.setOnStateChangeListener {
             _playerState = it
@@ -69,7 +62,14 @@ class PlayerViewModel(
             EPlayerState.PREPARED, EPlayerState.PAUSED -> R.drawable.play_icon
             EPlayerState.PLAYING -> R.drawable.pause_icon
         }
-        _playButtonState.postValue(resId)
+        handler.post {
+            _playButtonState = resId
+            if (_playerState == EPlayerState.PREPARED) {
+                _currentTrackTime = "00:00"
+                stopTrackTimeRunnable()
+            }
+            _screenState.value = PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+        }
     }
 
     fun handlePlayback() {
@@ -101,7 +101,10 @@ class PlayerViewModel(
     private fun createTrackTimeRunnable(): Runnable {
         return object : Runnable {
             override fun run() {
-                _currentTrackTime.postValue(dataFormat.format(playerInteractor.getCurrentPosition()))
+                handler.post {
+                    _currentTrackTime = dataFormat.format(playerInteractor.getCurrentPosition())
+                    _screenState.value = PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                }
 
                 if (_playerState == EPlayerState.PLAYING)
                     handler.postDelayed(this, TRACK_TIME_UPDATE_DELAY)

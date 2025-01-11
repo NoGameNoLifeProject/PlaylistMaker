@@ -14,7 +14,6 @@ import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
 class SettingsActivity  : AppCompatActivity() {
 
     private val viewModel by viewModels<SettingsViewModel> {SettingsViewModel.getViewModelFactory(
-        application,
         Creator.getSharingInteractor(),
         Creator.getThemeInteractor())
     }

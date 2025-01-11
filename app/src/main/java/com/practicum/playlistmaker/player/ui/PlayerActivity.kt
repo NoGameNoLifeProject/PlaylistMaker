@@ -21,10 +21,10 @@ import com.practicum.playlistmaker.search.domain.models.Track
 class PlayerActivity : AppCompatActivity() {
     private val viewModel by viewModels<PlayerViewModel> {
         val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(TRACK, Track::class.java)
+            intent.getSerializableExtra(TRACK, Track::class.java)
         } else {
             @Suppress("DEPRECATION")
-            intent.getParcelableExtra(TRACK) as? Track
+            intent.getSerializableExtra(TRACK) as? Track
         }
 
         PlayerViewModel.getViewModelFactory(
@@ -53,14 +53,6 @@ class PlayerActivity : AppCompatActivity() {
             render(it)
         }
 
-        viewModel.currentTrackTime.observe(this) {
-            binding.trackTime.text = it
-        }
-
-        viewModel.playButtonState.observe(this) {
-            binding.playButton.setImageResource(it)
-        }
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(0, systemBars.top, 0, systemBars.bottom)
@@ -68,7 +60,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun init(track: Track, error: Boolean = false) {
+    private fun init(track: Track, currentTrackTime: String, playButtonState: Int, error: Boolean = false) {
         Glide.with(this)
             .load(track.getCoverArtwork())
             .placeholder(R.drawable.track_placeholder)
@@ -82,12 +74,14 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.trackName.text = track.trackName
         binding.trackArtist.text = track.artistName
-        binding.trackTime.text = getString(R.string.player_track_time_default)
+        binding.trackTime.text = currentTrackTime
         binding.trackLengthValue.text = track.getTrackLength()
         binding.trackCollectionValue.text = track.collectionName
         binding.trackReleaseDateValue.text = track.getShortReleaseDate()
         binding.trackPrimaryGenreValue.text = track.primaryGenreName
         binding.trackCountryValue.text = track.country
+
+        binding.playButton.setImageResource(playButtonState)
 
         if (error) {
             binding.trackTime.text = getString(R.string.player_track_no_preview)
@@ -98,8 +92,8 @@ class PlayerActivity : AppCompatActivity() {
     private fun render(state: PlayerScreenState) {
         when (state) {
             is PlayerScreenState.Loading -> {}
-            is PlayerScreenState.Content -> init(state.track)
-            is PlayerScreenState.Error -> init(state.track, true)
+            is PlayerScreenState.Content -> init(state.track, state.currentTrackTime, state.playButtonState)
+            is PlayerScreenState.Error -> init(state.track, state.currentTrackTime, state.playButtonState, true)
         }
     }
 
