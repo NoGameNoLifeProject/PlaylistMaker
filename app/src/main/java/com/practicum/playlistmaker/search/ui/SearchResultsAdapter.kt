@@ -3,8 +3,8 @@ package com.practicum.playlistmaker.search.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.search.domain.models.Track
 
 class SearchResultsAdapter(private val onTrackClick: (Track) -> Unit): RecyclerView.Adapter<SearchResultsViewHolder> () {
     private var data: List<Track> = listOf()
