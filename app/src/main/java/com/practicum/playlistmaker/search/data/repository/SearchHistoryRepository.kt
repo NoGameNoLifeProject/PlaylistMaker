@@ -1,18 +1,15 @@
 package com.practicum.playlistmaker.search.data.repository
 
-import android.content.Context
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.search.domain.repository.ISearchHistoryRepository
+import com.practicum.playlistmaker.utils.Const.PREFERENCES_SEARCH_HISTORY
 
-const val PREFERENCES_SEARCH_HISTORY = "search_history"
 private const val maxHistorySize = 10
 
-class SearchHistoryRepository(context: Context) : ISearchHistoryRepository {
-    private val sharedPref = context.getSharedPreferences(PREFERENCES_SEARCH_HISTORY, Context.MODE_PRIVATE)
-    private val gson: Gson = Gson()
-
+class SearchHistoryRepository(private val sharedPref: SharedPreferences, private val gson: Gson) : ISearchHistoryRepository {
     override fun addSearchHistory(track: Track) {
         val history = getSearchHistory()
         val prevPos = history.indexOfFirst {it.trackId == track.trackId}

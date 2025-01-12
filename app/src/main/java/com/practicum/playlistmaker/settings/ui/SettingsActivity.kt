@@ -2,21 +2,17 @@ package com.practicum.playlistmaker.settings.ui
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.databinding.ActivitySettingsBinding
 import com.practicum.playlistmaker.settings.ui.view_model.SettingsViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsActivity  : AppCompatActivity() {
 
-    private val viewModel by viewModels<SettingsViewModel> {SettingsViewModel.getViewModelFactory(
-        Creator.getSharingInteractor(),
-        Creator.getThemeInteractor())
-    }
+    private val viewModel by viewModel<SettingsViewModel>()
 
     private lateinit var binding: ActivitySettingsBinding
 
@@ -31,12 +27,9 @@ class SettingsActivity  : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
+        binding.themeSwitcher.isChecked = viewModel.themeSettings.value?.isDark == true
         binding.themeSwitcher.setOnCheckedChangeListener { _, checked ->
             viewModel.setTheme(checked)
-        }
-
-        viewModel.themeSettings.observe(this) {
-            binding.themeSwitcher.isChecked = it.isDark
         }
 
         binding.shareButton.setOnClickListener {

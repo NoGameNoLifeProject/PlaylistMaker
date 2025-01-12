@@ -4,8 +4,7 @@ import android.media.MediaPlayer
 import com.practicum.playlistmaker.player.domain.models.EPlayerState
 import com.practicum.playlistmaker.player.domain.repository.IPlayerRepository
 
-class PlayerRepository : IPlayerRepository {
-    private val mediaPlayer = MediaPlayer()
+class PlayerRepository(private val mediaPlayer: MediaPlayer) : IPlayerRepository {
     private var onStateChangeListener: ((EPlayerState) -> Unit)? = null
 
     private var state: EPlayerState = EPlayerState.DEFAULT
