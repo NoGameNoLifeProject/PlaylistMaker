@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.media.ui.MediaActivity
 import com.practicum.playlistmaker.search.ui.SearchActivity
 import com.practicum.playlistmaker.settings.ui.SettingsActivity
 
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         mediaButton.setOnClickListener {
+            val displayIntent = Intent(this, MediaActivity::class.java)
+            startActivity(displayIntent)
         }
 
         settingsButton.setOnClickListener {

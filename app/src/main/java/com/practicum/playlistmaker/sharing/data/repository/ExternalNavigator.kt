@@ -13,6 +13,7 @@ class ExternalNavigator(val context: Context) : IExternalNavigator {
             data = Uri.parse(termsLink)
         }
         val termsOfUseIntent = Intent.createChooser(sendIntent, null)
+        termsOfUseIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(termsOfUseIntent)
     }
 
@@ -25,6 +26,7 @@ class ExternalNavigator(val context: Context) : IExternalNavigator {
             putExtra(Intent.EXTRA_TEXT, supportEmailData.text)
         }
         val openEmailIntent = Intent.createChooser(sendIntent, null)
+        openEmailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(openEmailIntent)
     }
 
@@ -35,6 +37,7 @@ class ExternalNavigator(val context: Context) : IExternalNavigator {
             putExtra(Intent.EXTRA_TEXT, shareAppLink)
         }
         val shareAppIntent = Intent.createChooser(sendIntent, null)
+        shareAppIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(shareAppIntent)
     }
 }
