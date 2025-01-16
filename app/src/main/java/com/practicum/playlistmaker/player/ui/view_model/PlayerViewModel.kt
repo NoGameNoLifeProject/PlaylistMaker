@@ -57,18 +57,27 @@ class PlayerViewModel(
     }
 
     private fun updateUI() {
-        val resId = when (_playerState) {
-            EPlayerState.DEFAULT, EPlayerState.ERROR -> return
-            EPlayerState.PREPARED, EPlayerState.PAUSED -> R.drawable.play_icon
-            EPlayerState.PLAYING -> R.drawable.pause_icon
-        }
         handler.post {
-            _playButtonState = resId
-            if (_playerState == EPlayerState.PREPARED) {
-                _currentTrackTime = "00:00"
-                stopTrackTimeRunnable()
+            when (_playerState) {
+                EPlayerState.DEFAULT -> {}
+                EPlayerState.ERROR -> {
+                    _screenState.value = PlayerScreenState.Error(track, _currentTrackTime, _playButtonState)
+                }
+                EPlayerState.PREPARED, EPlayerState.PAUSED -> {
+                    _playButtonState = R.drawable.play_icon
+                    if (_playerState == EPlayerState.PREPARED) {
+                        _currentTrackTime = "00:00"
+                        stopTrackTimeRunnable()
+                    }
+                    _screenState.value =
+                        PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                }
+                EPlayerState.PLAYING -> {
+                    _playButtonState = R.drawable.pause_icon
+                    _screenState.value =
+                        PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                }
             }
-            _screenState.value = PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
         }
     }
 
@@ -120,13 +129,5 @@ class PlayerViewModel(
 
     companion object {
         private const val TRACK_TIME_UPDATE_DELAY = 500L
-        fun getViewModelFactory(
-            track: Track,
-            playerInteractor: IPlayerInteractor,
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                PlayerViewModel(track, playerInteractor)
-            }
-        }
     }
 }

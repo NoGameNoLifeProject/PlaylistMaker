@@ -10,25 +10,20 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.creator.Creator
 import com.practicum.playlistmaker.databinding.ActivitySearchBinding
 import com.practicum.playlistmaker.player.ui.PlayerActivity
 import com.practicum.playlistmaker.player.ui.PlayerActivity.Companion.TRACK
 import com.practicum.playlistmaker.search.domain.models.SearchScreenState
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SearchActivity : AppCompatActivity() {
-    private val viewModel by viewModels<SearchViewModel> {
-        SearchViewModel.getViewModelFactory(
-        Creator.getTracksInteractor(),
-        Creator.getSearchHistoryInteractor())
-    }
+    private val viewModel by viewModel<SearchViewModel>()
 
     private lateinit var binding: ActivitySearchBinding
 

@@ -38,15 +38,4 @@ class SettingsViewModel(private val themeInteractor: IThemeInteractor,
     fun termsOfUse() {
         sharingInteractor.openTerms()
     }
-
-    companion object {
-        fun getViewModelFactory(
-            sharingInteractor: ISharingInteractor,
-            themeInteractor: IThemeInteractor
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SettingsViewModel(themeInteractor, sharingInteractor)
-            }
-        }
-    }
 }

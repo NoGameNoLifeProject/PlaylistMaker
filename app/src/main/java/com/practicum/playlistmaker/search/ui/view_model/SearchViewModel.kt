@@ -127,13 +127,5 @@ class SearchViewModel(
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 1000L
         private val SEARCH_REQUEST_TOKEN = Any()
-        fun getViewModelFactory(
-            searchTracksInteractor: ITracksInteractor,
-            searchHistoryInteractor: ISearchHistoryInteractor
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SearchViewModel(searchTracksInteractor, searchHistoryInteractor)
-            }
-        }
     }
 }
