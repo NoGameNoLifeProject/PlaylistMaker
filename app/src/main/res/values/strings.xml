@@ -11,6 +11,11 @@
     <string name="search_history_clear_button">Очистить историю</string>
     <string name="itunes_api_base_url">https://itunes.apple.com</string>
     <string name="media">Медиатека</string>
+    <string name="media_favorites">Избранные треки</string>
+    <string name="media_playlists">Плейлисты</string>
+    <string name="media_playlists_add">Новый плейлист</string>
+    <string name="media_empty">Ваша медиатека пуста</string>
+    <string name="media_no_playlists">Вы не создали ни одного плейлиста</string>
     <string name="settings">Настройки</string>
     <string name="settings_theme">Темная тема</string>
     <string name="settings_share">Поделиться приложением</string>

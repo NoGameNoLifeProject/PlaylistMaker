@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.koin.android)
+    implementation(libs.androidx.fragment.ktx)
     annotationProcessor(libs.glide)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
