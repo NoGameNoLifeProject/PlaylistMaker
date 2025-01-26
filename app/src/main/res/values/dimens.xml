@@ -7,5 +7,6 @@
     <dimen name="pd_l">24dp</dimen>
     <dimen name="corner_radius_medium">16dp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
     <dimen name="player_cover_corner_radius">8dp</dimen>
 </resources>

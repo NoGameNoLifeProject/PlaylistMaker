@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".settings.ui.SettingsActivity">
+    tools:context=".settings.ui.SettingsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,16 +14,19 @@
         android:orientation="vertical"
         android:padding="4dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolBar"
-            style="@style/ToolBarStyle"
-            app:title="@string/settings" />
+        <TextView
+            android:id="@+id/title"
+            style="@style/FragmentTitleStyle"
+            android:text="@string/settings"
+            android:textAppearance="@style/FragmentTitleTextAppearance"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="12dp"/>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/theme_switcher"
             style="@style/SettingsSwitch"
             android:gravity="center_vertical"
-            android:layout_marginTop="@dimen/pd_l"
+            android:layout_marginTop="40dp"
             android:paddingEnd="10dp"
             android:text="@string/settings_theme" />
 

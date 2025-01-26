@@ -1,31 +1,28 @@
 package com.practicum.playlistmaker.search.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.databinding.ActivitySearchBinding
-import com.practicum.playlistmaker.player.ui.PlayerActivity
-import com.practicum.playlistmaker.player.ui.PlayerActivity.Companion.TRACK
+import com.practicum.playlistmaker.databinding.FragmentSearchBinding
+import com.practicum.playlistmaker.player.ui.PlayerFragment
 import com.practicum.playlistmaker.search.domain.models.SearchScreenState
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
+import com.practicum.playlistmaker.utils.BindingFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : BindingFragment<FragmentSearchBinding>() {
     private val viewModel by viewModel<SearchViewModel>()
-
-    private lateinit var binding: ActivitySearchBinding
 
     private var trackClickAllowed = true
 
@@ -34,19 +31,18 @@ class SearchActivity : AppCompatActivity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+    override fun createBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?
+    ): FragmentSearchBinding {
+        return FragmentSearchBinding.inflate(inflater, container, false)
+    }
 
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        viewModel.state.observe(this) {
+        viewModel.state.observe(viewLifecycleOwner) {
             render(it)
-        }
-
-        binding.toolBar.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
         }
 
         searchResultsAdapter = SearchResultsAdapter {
@@ -61,19 +57,20 @@ class SearchActivity : AppCompatActivity() {
         }
         binding.rvSearchHistory.adapter = searchHistoryAdapter
 
-        viewModel.searchQuery.observe(this) { query ->
+        viewModel.searchQuery.observe(viewLifecycleOwner) { query ->
             if (binding.search.text.toString() != query) {
                 binding.search.setText(query)
                 binding.search.setSelection(query.length)
             }
         }
 
-        viewModel.showToast.observe(this) {
+        viewModel.showToast.observe(viewLifecycleOwner) {
             showToast(it)
         }
 
         binding.searchLayout.setEndIconOnClickListener {
-            val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+            val inputMethodManager =
+                activity?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as? InputMethodManager
             inputMethodManager?.hideSoftInputFromWindow(it.windowToken, 0)
             binding.search.setText("")
             viewModel.clearSearchQuery()
@@ -101,20 +98,15 @@ class SearchActivity : AppCompatActivity() {
         binding.searchHistoryClearButton.setOnClickListener {
             viewModel.clearSearchHistory()
         }
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
     }
 
-    private fun openPlayer(track: Track){
+    private fun openPlayer(track: Track) {
         if (!isTrackClickAllowed()) return
 
-        val intent = Intent(this, PlayerActivity::class.java)
-        intent.putExtra(TRACK, track)
-        startActivity(intent)
+        findNavController().navigate(
+            R.id.action_searchFragment_to_playerFragment,
+            PlayerFragment.createArgs(track)
+        )
     }
 
     private fun render(state: SearchScreenState) {
@@ -168,11 +160,11 @@ class SearchActivity : AppCompatActivity() {
 
     private fun showToast(text: String) {
         if (text.isNotEmpty()) {
-            Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun isTrackClickAllowed() : Boolean {
+    private fun isTrackClickAllowed(): Boolean {
         val current = trackClickAllowed
         if (trackClickAllowed) {
             trackClickAllowed = false

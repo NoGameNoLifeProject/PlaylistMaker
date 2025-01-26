@@ -82,15 +82,23 @@ class PlayerViewModel(
         when (_playerState) {
             EPlayerState.DEFAULT, EPlayerState.ERROR -> {}
             EPlayerState.PREPARED, EPlayerState.PAUSED -> {
-                playerInteractor.play()
-                startTrackTimeRunnable()
+                play()
             }
 
             EPlayerState.PLAYING -> {
-                playerInteractor.pause()
-                stopTrackTimeRunnable()
+                pause()
             }
         }
+    }
+
+    fun play() {
+        playerInteractor.play()
+        startTrackTimeRunnable()
+    }
+
+    fun pause() {
+        playerInteractor.pause()
+        stopTrackTimeRunnable()
     }
 
     private fun startTrackTimeRunnable() {
