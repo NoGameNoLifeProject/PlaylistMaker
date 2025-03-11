@@ -2,59 +2,56 @@ package com.practicum.playlistmaker.player.ui
 
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.R
-import com.practicum.playlistmaker.databinding.ActivityPlayerBinding
+import com.practicum.playlistmaker.databinding.FragmentPlayerBinding
 import com.practicum.playlistmaker.player.domain.models.PlayerScreenState
 import com.practicum.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.practicum.playlistmaker.search.domain.models.Track
+import com.practicum.playlistmaker.utils.BindingFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
     private val viewModel by viewModel<PlayerViewModel>() {
         val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getSerializableExtra(TRACK, Track::class.java)
+            requireArguments().getSerializable(TRACK, Track::class.java)
         } else {
             @Suppress("DEPRECATION")
-            intent.getSerializableExtra(TRACK) as? Track
+            requireArguments().getSerializable(TRACK) as? Track
         }
         parametersOf(track)
     }
 
-    private lateinit var binding: ActivityPlayerBinding
+    override fun createBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPlayerBinding {
+        return FragmentPlayerBinding.inflate(inflater, container, false)
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        binding = ActivityPlayerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        binding.toolBar.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.backPlayerImage.setOnClickListener {
+            findNavController().navigateUp()
         }
 
         binding.playButton.setOnClickListener {
             viewModel.handlePlayback()
         }
 
-        viewModel.screenState.observe(this) {
+        viewModel.screenState.observe(viewLifecycleOwner) {
             render(it)
         }
+    }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, systemBars.top, 0, systemBars.bottom)
-            insets
-        }
+    override fun onPause() {
+        super.onPause()
+        viewModel.pause()
     }
 
     private fun init(track: Track, currentTrackTime: String, playButtonState: Int, error: Boolean = false) {
@@ -95,6 +92,9 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val TRACK = "track"
+        private const val TRACK = "track"
+
+        fun createArgs(track: Track) =
+            bundleOf(TRACK to track)
     }
 }

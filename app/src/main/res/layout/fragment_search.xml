@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".search.ui.SearchActivity">
+    tools:context=".search.ui.SearchFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,17 +14,20 @@
         android:orientation="vertical"
         android:padding="4dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolBar"
-            style="@style/ToolBarStyle"
-            app:title="@string/search" />
+        <TextView
+            android:id="@+id/title"
+            style="@style/FragmentTitleStyle"
+            android:textAppearance="@style/FragmentTitleTextAppearance"
+            android:text="@string/search"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="12dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/search_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="12dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/rounded_edittext"
             android:gravity="center_vertical"
             android:theme="@style/Theme.SearchBar"

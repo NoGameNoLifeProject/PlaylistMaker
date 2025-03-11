@@ -5,25 +5,29 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".media.ui.MediaActivity">
+    android:background="?attr/backgroundSecondaryColor"
+    tools:context=".media.ui.fragments.MediaFragment">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolBar"
-        style="@style/ToolBarStyle"
-        app:title="@string/media"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+    <TextView
+        android:id="@+id/title"
+        style="@style/FragmentTitleStyle"
+        android:text="@string/media"
+        android:textAppearance="@style/FragmentTitleTextAppearance"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/toolBar"
-        app:tabRippleColor="?textColorSecondary"
-        app:tabTextColor="?textColorSecondary"
+        android:layout_marginTop="@dimen/pd_m"
+        android:background="?attr/backgroundSecondaryColor"
+        app:layout_constraintTop_toBottomOf="@id/title"
         app:tabIndicatorColor="?textColorSecondary"
+        app:tabIndicatorFullWidth="true"
+        app:tabRippleColor="?textColorSecondary"
         app:tabTextAppearance="@style/MediaTabTextAppearance"
-        app:tabIndicatorFullWidth="true"/>
+        app:tabTextColor="?textColorSecondary" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
