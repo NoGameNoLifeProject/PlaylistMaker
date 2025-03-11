@@ -22,7 +22,6 @@ class SearchViewModel(
     private val _searchQuery = MutableLiveData("")
     private val _showToast = SingleLiveEvent<String>()
     private val _searchHistory: MutableList<Track> = mutableListOf()
-    private var latestSearchText: String? = null
 
     val state: LiveData<SearchScreenState>
         get() = _state
@@ -35,13 +34,13 @@ class SearchViewModel(
 
     val searchDebounce = debounce(SEARCH_DEBOUNCE_DELAY, viewModelScope, true, this::onSearchDebounce)
     fun onSearchDebounce(changedText: String) {
-        if (latestSearchText == changedText) return
+        if (_searchQuery.value == changedText) return
         if (changedText == ""){
             clearSearchQuery()
             return
         }
 
-        latestSearchText = changedText
+        _searchQuery.value = changedText
         searchRequest(changedText)
     }
 
@@ -96,7 +95,6 @@ class SearchViewModel(
     }
 
     fun clearSearchQuery() {
-        latestSearchText = ""
         _searchQuery.value = ""
         renderState(SearchScreenState.Content(listOf()))
         searchHistoryShow()
