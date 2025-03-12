@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -20,15 +21,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
-    private val viewModel by viewModel<PlayerViewModel>() {
-        val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireArguments().getSerializable(TRACK, Track::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            requireArguments().getSerializable(TRACK) as? Track
-        }
-        parametersOf(track)
-    }
+    private val args: PlayerFragmentArgs by navArgs()
+    private val viewModel: PlayerViewModel by viewModel { parametersOf(args.track) }
 
     override fun createBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPlayerBinding {
         return FragmentPlayerBinding.inflate(inflater, container, false)
@@ -93,8 +87,5 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
 
     companion object {
         private const val TRACK = "track"
-
-        fun createArgs(track: Track) =
-            bundleOf(TRACK to track)
     }
 }

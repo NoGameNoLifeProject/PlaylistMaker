@@ -2,13 +2,12 @@ package com.practicum.playlistmaker.search.domain.models
 
 
 
-//import android.os.Parcelable
-//import kotlinx.parcelize.Parcelize
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-//@Parcelize
+@Parcelize
 data class Track(
     val trackId: Long, //Уникальный идентификатор
     val trackName: String, // Название композиции
@@ -20,7 +19,7 @@ data class Track(
     val primaryGenreName: String, // Жанр
     val country: String, //Страна исполнителя
     val previewUrl: String? //Url для воспроизведения
-) : Serializable {
+) : Parcelable {
     fun getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")
     fun getTrackLength() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
     fun getShortReleaseDate() = releaseDate.take(4)

@@ -103,10 +103,8 @@ class SearchFragment : BindingFragment<FragmentSearchBinding>() {
     private fun openPlayer(track: Track) {
         if (!isTrackClickAllowed()) return
 
-        findNavController().navigate(
-            R.id.action_searchFragment_to_playerFragment,
-            PlayerFragment.createArgs(track)
-        )
+        val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+        findNavController().navigate(action)
     }
 
     private fun render(state: SearchScreenState) {
