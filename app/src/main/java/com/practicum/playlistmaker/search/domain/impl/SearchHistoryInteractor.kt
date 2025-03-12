@@ -6,12 +6,12 @@ import com.practicum.playlistmaker.search.domain.repository.ISearchHistoryReposi
 
 class SearchHistoryInteractor(private val repository: ISearchHistoryRepository) :
     ISearchHistoryInteractor {
-    override fun addSearchHistory(track: Track) {
+    override suspend fun addSearchHistory(track: Track) {
         repository.addSearchHistory(track)
     }
 
-    override fun getSearchHistory(consumer: ISearchHistoryInteractor.ISearchHistoryConsumer) {
-        consumer.consume(repository.getSearchHistory())
+    override suspend fun getSearchHistory(): List<Track> {
+        return repository.getSearchHistory()
     }
 
     override fun clearSearchHistory() {

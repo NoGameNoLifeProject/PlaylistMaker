@@ -1,5 +1,7 @@
 package com.practicum.playlistmaker.di
 
+import com.practicum.playlistmaker.media.data.FavoritesRepository
+import com.practicum.playlistmaker.media.domain.api.IFavoritesRepository
 import com.practicum.playlistmaker.player.data.repository.PlayerRepository
 import com.practicum.playlistmaker.player.domain.repository.IPlayerRepository
 import com.practicum.playlistmaker.search.data.repository.SearchHistoryRepository
@@ -20,11 +22,11 @@ val repositoryModule = module {
     }
 
     single<ISearchHistoryRepository> {
-        SearchHistoryRepository(get(), get())
+        SearchHistoryRepository(get(), get(), get())
     }
 
     single<ITracksRepository> {
-        TracksRepository(get())
+        TracksRepository(get(), get())
     }
 
     single<IThemeRepository> {
@@ -37,5 +39,9 @@ val repositoryModule = module {
 
     single<IResourceShareProvider> {
         ResourceShareProvider(get())
+    }
+
+    single<IFavoritesRepository> {
+        FavoritesRepository(get(), get())
     }
 }

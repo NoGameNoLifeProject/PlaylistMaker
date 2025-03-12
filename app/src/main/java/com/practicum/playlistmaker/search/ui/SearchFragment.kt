@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.databinding.FragmentSearchBinding
-import com.practicum.playlistmaker.player.ui.PlayerFragment
 import com.practicum.playlistmaker.search.domain.models.SearchScreenState
 import com.practicum.playlistmaker.search.domain.models.Track
 import com.practicum.playlistmaker.search.ui.view_model.SearchViewModel
@@ -169,6 +168,11 @@ class SearchFragment : BindingFragment<FragmentSearchBinding>() {
             mainHandler.postDelayed({ trackClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
         }
         return current
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResume()
     }
 
     companion object {

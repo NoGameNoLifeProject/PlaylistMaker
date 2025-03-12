@@ -5,4 +5,5 @@ object Const {
     const val PREFERENCES_PLAY_LIST_MAKER = "play_list_maker"
     const val PREFERENCES_SEARCH_HISTORY = "search_history"
     const val PREFERENCES_DARK_THEME = "dark_theme"
+    const val DATABASE_NAME = "local.db"
 }

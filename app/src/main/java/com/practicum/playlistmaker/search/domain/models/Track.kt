@@ -18,7 +18,8 @@ data class Track(
     val releaseDate: String, // Год релиза
     val primaryGenreName: String, // Жанр
     val country: String, //Страна исполнителя
-    val previewUrl: String? //Url для воспроизведения
+    val previewUrl: String?, //Url для воспроизведения
+    var isFavorite: Boolean = false
 ) : Parcelable {
     fun getCoverArtwork() = artworkUrl100.replaceAfterLast('/', "512x512bb.jpg")
     fun getTrackLength() = SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
