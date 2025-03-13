@@ -24,7 +24,6 @@ class PlayerViewModel(
 
     private var _playerState = EPlayerState.DEFAULT
     private val _screenState = MutableLiveData<PlayerScreenState>()
-    private val _isFavorite = MutableLiveData(track.isFavorite)
     private var _currentTrackTime = "00:00"
     private var _playButtonState = R.drawable.play_icon
     private var trackTimeJob: Job? = null
@@ -36,7 +35,6 @@ class PlayerViewModel(
         )
     }
     val screenState: LiveData<PlayerScreenState> get() = _screenState
-    val isFavorite: LiveData<Boolean> get() = _isFavorite
 
     init {
         setupPlayer()
@@ -56,12 +54,15 @@ class PlayerViewModel(
         playerInteractor.prepare(track.previewUrl)
     }
 
+    private fun renderState(state: PlayerScreenState) {
+        _screenState.value = state
+    }
+
     private fun updateUI() {
         when (_playerState) {
             EPlayerState.DEFAULT -> {}
             EPlayerState.ERROR -> {
-                _screenState.value =
-                    PlayerScreenState.Error(track, _currentTrackTime, _playButtonState)
+                renderState(PlayerScreenState.Error(track, _currentTrackTime, _playButtonState))
             }
 
             EPlayerState.PREPARED, EPlayerState.PAUSED -> {
@@ -70,14 +71,12 @@ class PlayerViewModel(
                     _currentTrackTime = "00:00"
                     stopTrackTimer()
                 }
-                _screenState.value =
-                    PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
             }
 
             EPlayerState.PLAYING -> {
                 _playButtonState = R.drawable.pause_icon
-                _screenState.value =
-                    PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
             }
         }
     }
@@ -125,15 +124,14 @@ class PlayerViewModel(
     }
 
     fun handleFavorite() {
-        val isCurrentFavorite = isFavorite.value == true
-        _isFavorite.postValue(!isCurrentFavorite)
-
         viewModelScope.launch {
-            if (isCurrentFavorite) {
+            if (track.isFavorite) {
                 favoritesInteractor.removeFavoriteTrack(track.trackId)
             } else {
                 favoritesInteractor.addFavoriteTrack(track)
             }
+            track.isFavorite = !track.isFavorite
+            renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
         }
     }
 

@@ -43,13 +43,6 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
         binding.addFavoritesButton.setOnClickListener {
             viewModel.handleFavorite()
         }
-
-        viewModel.isFavorite.observe(viewLifecycleOwner) { favorite ->
-            if (favorite)
-                binding.addFavoritesButton.setImageResource(R.drawable.favourites_icon_active)
-            else
-                binding.addFavoritesButton.setImageResource(R.drawable.favourites_icon)
-        }
     }
 
     override fun onPause() {
@@ -80,6 +73,11 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
 
         binding.playButton.setImageResource(playButtonState)
 
+        if (track.isFavorite)
+            binding.addFavoritesButton.setImageResource(R.drawable.favourites_icon_active)
+        else
+            binding.addFavoritesButton.setImageResource(R.drawable.favourites_icon)
+
         if (error) {
             binding.trackTime.text = getString(R.string.player_track_no_preview)
             return
@@ -92,9 +90,5 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
             is PlayerScreenState.Content -> init(state.track, state.currentTrackTime, state.playButtonState)
             is PlayerScreenState.Error -> init(state.track, state.currentTrackTime, state.playButtonState, true)
         }
-    }
-
-    companion object {
-        private const val TRACK = "track"
     }
 }
