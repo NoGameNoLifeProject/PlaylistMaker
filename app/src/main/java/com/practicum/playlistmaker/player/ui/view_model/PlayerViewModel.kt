@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.R
+import com.practicum.playlistmaker.media.domain.api.IFavoritesInteractor
 import com.practicum.playlistmaker.player.domain.api.IPlayerInteractor
 import com.practicum.playlistmaker.player.domain.models.EPlayerState
 import com.practicum.playlistmaker.player.domain.models.PlayerScreenState
@@ -17,7 +18,8 @@ import java.util.Locale
 
 class PlayerViewModel(
     private val track: Track,
-    private val playerInteractor: IPlayerInteractor
+    private val playerInteractor: IPlayerInteractor,
+    private val favoritesInteractor: IFavoritesInteractor
 ) : ViewModel() {
 
     private var _playerState = EPlayerState.DEFAULT
@@ -32,8 +34,7 @@ class PlayerViewModel(
             Locale.getDefault()
         )
     }
-    val screenState: LiveData<PlayerScreenState>
-        get() = _screenState
+    val screenState: LiveData<PlayerScreenState> get() = _screenState
 
     init {
         setupPlayer()
@@ -53,25 +54,29 @@ class PlayerViewModel(
         playerInteractor.prepare(track.previewUrl)
     }
 
+    private fun renderState(state: PlayerScreenState) {
+        _screenState.value = state
+    }
+
     private fun updateUI() {
         when (_playerState) {
             EPlayerState.DEFAULT -> {}
             EPlayerState.ERROR -> {
-                _screenState.value = PlayerScreenState.Error(track, _currentTrackTime, _playButtonState)
+                renderState(PlayerScreenState.Error(track, _currentTrackTime, _playButtonState))
             }
+
             EPlayerState.PREPARED, EPlayerState.PAUSED -> {
                 _playButtonState = R.drawable.play_icon
                 if (_playerState == EPlayerState.PREPARED) {
                     _currentTrackTime = "00:00"
                     stopTrackTimer()
                 }
-                _screenState.value =
-                    PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
             }
+
             EPlayerState.PLAYING -> {
                 _playButtonState = R.drawable.pause_icon
-                _screenState.value =
-                    PlayerScreenState.Content(track, _currentTrackTime, _playButtonState)
+                renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
             }
         }
     }
@@ -116,6 +121,18 @@ class PlayerViewModel(
     override fun onCleared() {
         super.onCleared()
         playerInteractor.release()
+    }
+
+    fun handleFavorite() {
+        viewModelScope.launch {
+            if (track.isFavorite) {
+                favoritesInteractor.removeFavoriteTrack(track.trackId)
+            } else {
+                favoritesInteractor.addFavoriteTrack(track)
+            }
+            track.isFavorite = !track.isFavorite
+            renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
+        }
     }
 
     companion object {

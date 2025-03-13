@@ -32,10 +32,12 @@ class SearchViewModel(
     val showToast: LiveData<String>
         get() = _showToast
 
-    val searchDebounce = debounce(SEARCH_DEBOUNCE_DELAY, viewModelScope, true, this::onSearchDebounce)
+    val searchDebounce =
+        debounce(SEARCH_DEBOUNCE_DELAY, viewModelScope, true, this::onSearchDebounce)
+
     fun onSearchDebounce(changedText: String) {
         if (_searchQuery.value == changedText) return
-        if (changedText == ""){
+        if (changedText == "") {
             clearSearchQuery()
             return
         }
@@ -57,10 +59,12 @@ class SearchViewModel(
                         else
                             renderState(SearchScreenState.Content(it.data))
                     }
+
                     is ISearchResult.Error -> {
                         renderState(SearchScreenState.Error)
                         _showToast.value = it.message
                     }
+
                     is ISearchResult.NetworkError -> {
                         renderState(SearchScreenState.Error)
                         _showToast.value = it.message
@@ -74,24 +78,24 @@ class SearchViewModel(
         _state.value = state
     }
 
-    private fun reloadSearchHistory() {
-        searchHistoryInteractor.getSearchHistory {
-            _searchHistory.clear()
-            _searchHistory.addAll(it)
-            if (_state.value is SearchScreenState.History)
-                renderState(SearchScreenState.History(_searchHistory))
-        }
+    private suspend fun reloadSearchHistory() {
+        val history = searchHistoryInteractor.getSearchHistory()
+        _searchHistory.clear()
+        _searchHistory.addAll(history)
+        if (_state.value is SearchScreenState.History)
+            renderState(SearchScreenState.History(_searchHistory))
     }
 
     fun addSearchHistory(track: Track) {
-        searchHistoryInteractor.addSearchHistory(track)
-        reloadSearchHistory()
+        viewModelScope.launch {
+            searchHistoryInteractor.addSearchHistory(track)
+            reloadSearchHistory()
+        }
     }
 
     fun clearSearchHistory() {
         renderState(SearchScreenState.Content(listOf()))
         searchHistoryInteractor.clearSearchHistory()
-        reloadSearchHistory()
     }
 
     fun clearSearchQuery() {
@@ -101,15 +105,23 @@ class SearchViewModel(
     }
 
     private fun searchHistoryShow() {
-        reloadSearchHistory()
-        if (_searchHistory.isNotEmpty())
-            renderState(SearchScreenState.History(_searchHistory))
+        viewModelScope.launch {
+            reloadSearchHistory()
+            if (_searchHistory.isNotEmpty())
+                renderState(SearchScreenState.History(_searchHistory))
+        }
     }
 
     fun onSearchFocus() {
         if (_searchQuery.value != "") return
 
         searchHistoryShow()
+    }
+
+    fun onResume() {
+        viewModelScope.launch {
+            reloadSearchHistory()
+        }
     }
 
     companion object {

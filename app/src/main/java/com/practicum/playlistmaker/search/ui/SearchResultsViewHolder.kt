@@ -1,10 +1,9 @@
 package com.practicum.playlistmaker.search.ui
 
-import android.content.Context
-import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.util.TypedValueCompat.dpToPx
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -25,7 +24,7 @@ class SearchResultsViewHolder(itemView: View, private val onTrackClick: (Track) 
             .placeholder(R.drawable.track_placeholder)
             .centerCrop()
             .transform(
-                RoundedCorners(dpToPx(2f, itemView.context))
+                RoundedCorners(dpToPx(2f, itemView.context.resources.displayMetrics).toInt())
             )
             .into(trackArtwork)
 
@@ -38,13 +37,5 @@ class SearchResultsViewHolder(itemView: View, private val onTrackClick: (Track) 
         itemView.setOnClickListener {
             onTrackClick.invoke(item)
         }
-    }
-
-    fun dpToPx(dp: Float, context: Context): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics
-        ).toInt()
     }
 }

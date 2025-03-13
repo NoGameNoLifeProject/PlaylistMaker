@@ -1,11 +1,9 @@
 package com.practicum.playlistmaker.player.ui
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -41,6 +39,10 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
         viewModel.screenState.observe(viewLifecycleOwner) {
             render(it)
         }
+
+        binding.addFavoritesButton.setOnClickListener {
+            viewModel.handleFavorite()
+        }
     }
 
     override fun onPause() {
@@ -71,6 +73,11 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
 
         binding.playButton.setImageResource(playButtonState)
 
+        if (track.isFavorite)
+            binding.addFavoritesButton.setImageResource(R.drawable.favourites_icon_active)
+        else
+            binding.addFavoritesButton.setImageResource(R.drawable.favourites_icon)
+
         if (error) {
             binding.trackTime.text = getString(R.string.player_track_no_preview)
             return
@@ -83,9 +90,5 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
             is PlayerScreenState.Content -> init(state.track, state.currentTrackTime, state.playButtonState)
             is PlayerScreenState.Error -> init(state.track, state.currentTrackTime, state.playButtonState, true)
         }
-    }
-
-    companion object {
-        private const val TRACK = "track"
     }
 }
