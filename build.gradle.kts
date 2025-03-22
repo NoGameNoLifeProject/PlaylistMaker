@@ -3,4 +3,5 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
     id("androidx.navigation.safeargs.kotlin") version "2.8.5" apply false
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }

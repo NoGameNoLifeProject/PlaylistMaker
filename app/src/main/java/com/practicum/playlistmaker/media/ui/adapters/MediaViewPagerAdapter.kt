@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.media.ui
+package com.practicum.playlistmaker.media.ui.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -18,8 +18,8 @@ class MediaViewPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> FavoritesFragment.newInstance()
-            else -> PlaylistsFragment.newInstance()
+            0 -> FavoritesFragment()
+            else -> PlaylistsFragment()
         }
     }
 }
