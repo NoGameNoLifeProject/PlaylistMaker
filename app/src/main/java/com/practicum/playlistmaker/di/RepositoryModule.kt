@@ -1,7 +1,11 @@
 package com.practicum.playlistmaker.di
 
-import com.practicum.playlistmaker.media.data.FavoritesRepository
+import com.practicum.playlistmaker.media.data.repository.FavoritesRepository
+import com.practicum.playlistmaker.media.data.repository.ImageRepository
+import com.practicum.playlistmaker.media.data.repository.PlaylistRepository
 import com.practicum.playlistmaker.media.domain.api.IFavoritesRepository
+import com.practicum.playlistmaker.media.domain.api.IImageRepository
+import com.practicum.playlistmaker.media.domain.api.IPlaylistRepository
 import com.practicum.playlistmaker.player.data.repository.PlayerRepository
 import com.practicum.playlistmaker.player.domain.repository.IPlayerRepository
 import com.practicum.playlistmaker.search.data.repository.SearchHistoryRepository
@@ -14,6 +18,7 @@ import com.practicum.playlistmaker.sharing.data.repository.ExternalNavigator
 import com.practicum.playlistmaker.sharing.data.repository.ResourceShareProvider
 import com.practicum.playlistmaker.sharing.domain.repository.IExternalNavigator
 import com.practicum.playlistmaker.sharing.domain.repository.IResourceShareProvider
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val repositoryModule = module {
@@ -43,5 +48,13 @@ val repositoryModule = module {
 
     single<IFavoritesRepository> {
         FavoritesRepository(get(), get())
+    }
+
+    single<IImageRepository> {
+        ImageRepository(androidContext())
+    }
+
+    single<IPlaylistRepository> {
+        PlaylistRepository(get(), get(), get(), get())
     }
 }

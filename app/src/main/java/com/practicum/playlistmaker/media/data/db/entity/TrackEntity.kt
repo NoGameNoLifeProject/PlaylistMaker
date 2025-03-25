@@ -5,11 +5,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "track_table",
-    indices = [Index(value = ["trackId"], unique = true)]
+    indices = [Index(value = ["createdAt"])]
 )
 data class TrackEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
     val trackId: Long,
     val artworkUrl100: String,
     val trackName: String,
@@ -20,4 +19,5 @@ data class TrackEntity(
     val country: String,
     val trackTimeMillis: Long,
     val previewUrl: String,
+    val createdAt: Long = System.currentTimeMillis()
 )

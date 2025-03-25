@@ -6,4 +6,6 @@
     <attr name="textColorSecondary" format="reference|color" />
     <attr name="iconColorPrimary" format="reference|color" />
     <attr name="iconColorSecondary" format="reference|color" />
+    <attr name="snackBarBackgroundColor" format="reference|color" />
+    <attr name="snackBarTextColor" format="reference|color" />
 </resources>
