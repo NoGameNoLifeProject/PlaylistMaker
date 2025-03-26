@@ -91,7 +91,7 @@ class PlayerFragment : BindingFragment<FragmentPlayerBinding>() {
         }
 
         viewModel.showToast.observe(viewLifecycleOwner) {
-            Snackbar.make(requireView(), getString(it.first, it.second), Snackbar.LENGTH_SHORT)
+            Snackbar.make(binding.root, getString(it.first, it.second), Snackbar.LENGTH_SHORT)
                 .setBackgroundTint(
                     MaterialColors.getColor(requireContext(), R.attr.snackBarBackgroundColor, Color.BLACK)
                 )

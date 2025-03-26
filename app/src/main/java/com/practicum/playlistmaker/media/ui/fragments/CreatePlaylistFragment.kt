@@ -44,7 +44,6 @@ class CreatePlaylistFragment : BindingFragment<FragmentCreatePlaylistBinding>() 
                 text.toString()
             )
         }
-        binding.buttonCreate.setOnClickListener { viewModel.onCreateHandler() }
 
         val pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -96,7 +95,7 @@ class CreatePlaylistFragment : BindingFragment<FragmentCreatePlaylistBinding>() 
 
     private fun showPlaylistCreated(playlistName: String) {
         val message = getString(R.string.media_create_playlist_created, playlistName)
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT)
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
             .setBackgroundTint(
                 MaterialColors.getColor(requireContext(), R.attr.snackBarBackgroundColor, Color.BLACK)
             )
