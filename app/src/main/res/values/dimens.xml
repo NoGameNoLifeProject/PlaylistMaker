@@ -5,6 +5,7 @@
     <dimen name="pd_s">8dp</dimen>
     <dimen name="pd_m">16dp</dimen>
     <dimen name="pd_l">24dp</dimen>
+    <dimen name="pd_xl">32dp</dimen>
     <dimen name="corner_radius_medium">16dp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_small">12sp</dimen>

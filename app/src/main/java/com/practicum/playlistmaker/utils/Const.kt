@@ -6,4 +6,5 @@ object Const {
     const val PREFERENCES_SEARCH_HISTORY = "search_history"
     const val PREFERENCES_DARK_THEME = "dark_theme"
     const val DATABASE_NAME = "local.db"
+    const val PLAYLISTS_COVERS_PATH = "playlists_covers"
 }

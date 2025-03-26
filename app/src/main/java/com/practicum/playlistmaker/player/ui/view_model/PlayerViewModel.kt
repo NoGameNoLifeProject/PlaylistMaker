@@ -6,10 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.R
 import com.practicum.playlistmaker.media.domain.api.IFavoritesInteractor
+import com.practicum.playlistmaker.media.domain.api.IPlaylistInteractor
+import com.practicum.playlistmaker.media.domain.models.PlaylistWithTracks
 import com.practicum.playlistmaker.player.domain.api.IPlayerInteractor
 import com.practicum.playlistmaker.player.domain.models.EPlayerState
 import com.practicum.playlistmaker.player.domain.models.PlayerScreenState
 import com.practicum.playlistmaker.search.domain.models.Track
+import com.practicum.playlistmaker.utils.SingleLiveEvent
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,11 +22,14 @@ import java.util.Locale
 class PlayerViewModel(
     private val track: Track,
     private val playerInteractor: IPlayerInteractor,
-    private val favoritesInteractor: IFavoritesInteractor
+    private val favoritesInteractor: IFavoritesInteractor,
+    private val playlistInteractor: IPlaylistInteractor
 ) : ViewModel() {
 
     private var _playerState = EPlayerState.DEFAULT
     private val _screenState = MutableLiveData<PlayerScreenState>()
+    private val _playlists = MutableLiveData<List<PlaylistWithTracks>>(emptyList())
+    private val _showToast = SingleLiveEvent<Pair<Int, String>>()
     private var _currentTrackTime = "00:00"
     private var _playButtonState = R.drawable.play_icon
     private var trackTimeJob: Job? = null
@@ -35,9 +41,16 @@ class PlayerViewModel(
         )
     }
     val screenState: LiveData<PlayerScreenState> get() = _screenState
+    val playlists: LiveData<List<PlaylistWithTracks>> get() = _playlists
+    val showToast: LiveData<Pair<Int, String>> get() = _showToast
 
     init {
         setupPlayer()
+
+        viewModelScope.launch {
+            playlistInteractor.getPlaylists()
+                .collect { playlists -> _playlists.postValue(playlists) }
+        }
     }
 
     private fun setupPlayer() {
@@ -132,6 +145,18 @@ class PlayerViewModel(
             }
             track.isFavorite = !track.isFavorite
             renderState(PlayerScreenState.Content(track, _currentTrackTime, _playButtonState))
+        }
+    }
+
+    fun addToPlaylist(playlist: PlaylistWithTracks) {
+        viewModelScope.launch {
+            if (playlist.tracks.find { it.trackId == track.trackId } != null) {
+                _showToast.value =
+                    Pair(R.string.player_track_already_in_playlist, playlist.playlist.name)
+                return@launch
+            }
+            playlistInteractor.addTrackToPlaylist(playlist.playlist.playlistId, track)
+            _showToast.value = Pair(R.string.player_track_added_to_playlist, playlist.playlist.name)
         }
     }
 

@@ -4,6 +4,9 @@ import android.content.Context
 import android.media.MediaPlayer
 import androidx.room.Room
 import com.google.gson.Gson
+import com.practicum.playlistmaker.media.data.converters.PlaylistDbConverter
+import com.practicum.playlistmaker.media.data.converters.PlaylistTrackDbConverter
+import com.practicum.playlistmaker.media.data.converters.PlaylistWithTracksDbConverter
 import com.practicum.playlistmaker.media.data.converters.TrackDbConverter
 import com.practicum.playlistmaker.media.data.db.AppDatabase
 import com.practicum.playlistmaker.search.data.ISearchNetworkClient
@@ -33,12 +36,15 @@ val dataModule = module {
     }
 
     single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, DATABASE_NAME).build()
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, DATABASE_NAME).fallbackToDestructiveMigration().build()
     }
 
     factory { Gson() }
 
     factory { MediaPlayer() }
 
-    factory { TrackDbConverter() }
+    single { TrackDbConverter() }
+    single { PlaylistDbConverter() }
+    single { PlaylistTrackDbConverter() }
+    single { PlaylistWithTracksDbConverter(get(), get()) }
 }

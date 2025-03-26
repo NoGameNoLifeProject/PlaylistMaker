@@ -1,5 +1,5 @@
 [versions]
-agp = "8.8.2"
+agp = "8.9.0"
 gson = "2.11.0"
 koinAndroid = "3.3.0"
 kotlin = "2.1.0"
@@ -24,6 +24,7 @@ navigationFragmentKtx = "2.8.5"
 roomRuntime = "2.5.1"
 roomKtx = "2.5.1"
 roomCompiler = "2.5.1"
+peko = "3.0.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -49,6 +50,7 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+peko = { group = "com.markodevcic", name = "peko", version.ref = "peko" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

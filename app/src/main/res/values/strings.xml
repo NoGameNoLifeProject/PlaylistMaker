@@ -13,9 +13,22 @@
     <string name="media">Медиатека</string>
     <string name="media_favorites">Избранные треки</string>
     <string name="media_playlists">Плейлисты</string>
-    <string name="media_playlists_add">Новый плейлист</string>
+    <string name="media_playlists_create">Новый плейлист</string>
+    <string name="media_playlists_add">Добавить в плейлист</string>
     <string name="media_empty">Ваша медиатека пуста</string>
     <string name="media_no_playlists">Вы не создали ни одного плейлиста</string>
+    <string name="media_create_playlist_title">Новый плейлист</string>
+    <string name="media_create_playlist_name_placeholder">Название*</string>
+    <string name="media_create_playlist_desc_placeholder">Описание</string>
+    <string name="media_create_playlist_create_button">Создать</string>
+    <string name="media_create_playlist_created">Плейлист %1s создан</string>
+    <string name="media_create_playlist_dialog_title">Завершить создание плейлиста?</string>
+    <string name="media_create_playlist_dialog_message">Все несохраненные данные будут потеряны</string>
+    <string name="media_create_playlist_dialog_button_cancel">Отмена</string>
+    <string name="media_create_playlist_dialog_button_finish">Завершить</string>
+    <string name="media_playlists_track_one">трек</string>
+    <string name="media_playlists_track_some">трека</string>
+    <string name="media_playlists_track_many">треков</string>
     <string name="settings">Настройки</string>
     <string name="settings_theme">Темная тема</string>
     <string name="settings_share">Поделиться приложением</string>
@@ -41,4 +54,6 @@
     <string name="player_track_release_date_placeholder">1965</string>
     <string name="player_track_primary_genre_placeholder">Жанр</string>
     <string name="player_track_country_placeholder">Страна</string>
+    <string name="player_track_added_to_playlist">Добавлено в плейлист %1s</string>
+    <string name="player_track_already_in_playlist">Трек уже добавлен в плейлист %1s</string>
 </resources>

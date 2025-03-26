@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.media.data
+package com.practicum.playlistmaker.media.data.repository
 
 import com.practicum.playlistmaker.media.data.converters.TrackDbConverter
 import com.practicum.playlistmaker.media.data.db.AppDatabase
