@@ -33,7 +33,8 @@ class PlaylistsFragment : BindingFragment<FragmentPlaylistsBinding>() {
         adapter = PlaylistsAdapter({ count ->
             TextUtils.getTracksCountEnding(requireContext(), count)
         }, {
-            // TODO: Open playlist
+            val action = MediaFragmentDirections.actionMediaFragmentToPlaylistFragment(it.playlist.playlistId)
+            findNavController().navigate(action)
         })
 
         binding.rvPlaylists.apply {

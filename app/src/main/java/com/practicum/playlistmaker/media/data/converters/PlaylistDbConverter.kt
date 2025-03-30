@@ -7,6 +7,7 @@ import com.practicum.playlistmaker.media.domain.models.Playlist
 class PlaylistDbConverter {
     fun map(playlist: Playlist): PlaylistEntity {
         return PlaylistEntity(
+            playlistId = playlist.playlistId,
             name = playlist.name,
             description = playlist.description,
             cover = playlist.cover.toString(),

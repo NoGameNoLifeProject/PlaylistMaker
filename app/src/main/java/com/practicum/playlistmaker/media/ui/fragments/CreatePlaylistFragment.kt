@@ -21,8 +21,8 @@ import com.practicum.playlistmaker.media.ui.view_models.CreatePlaylistViewModel
 import com.practicum.playlistmaker.utils.BindingFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CreatePlaylistFragment : BindingFragment<FragmentCreatePlaylistBinding>() {
-    private val viewModel by viewModel<CreatePlaylistViewModel>()
+open class CreatePlaylistFragment : BindingFragment<FragmentCreatePlaylistBinding>() {
+    protected open val viewModel by viewModel<CreatePlaylistViewModel>()
 
     override fun createBinding(
         inflater: LayoutInflater,

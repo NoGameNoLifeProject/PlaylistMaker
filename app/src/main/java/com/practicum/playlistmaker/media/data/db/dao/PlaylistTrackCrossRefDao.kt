@@ -16,4 +16,7 @@ interface PlaylistTrackCrossRefDao {
 
     @Query("DELETE FROM PlaylistTrackCrossRef WHERE playlistId = :playlistId")
     suspend fun deletePlaylistFromPlaylistTrackCrossRef(playlistId: Long)
+
+    @Query("SELECT playlistId FROM PlaylistTrackCrossRef WHERE trackId = :trackId")
+    suspend fun getTrackPlaylists(trackId: Long): List<Long>
 }
