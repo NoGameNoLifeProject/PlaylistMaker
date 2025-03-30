@@ -40,12 +40,12 @@
     <string name="media_playlist_delete">Удалить плейлист</string>
     <string name="media_playlist_delete_track_dialog_title">Удалить трек</string>
     <string name="media_playlist_delete_track_dialog_desc">Вы уверены, что хотите удалить трек из плейлиста?</string>
-    <string name="media_playlist_delete_track_dialog_confirm">Удалить</string>
-    <string name="media_playlist_delete_track_dialog_cancel">Отмена</string>
+    <string name="media_playlist_delete_track_dialog_confirm">Да</string>
+    <string name="media_playlist_delete_track_dialog_cancel">Нет</string>
     <string name="media_playlist_delete_playlist_dialog_title">Удалить плейлист</string>
     <string name="media_playlist_delete_playlist_dialog_desc">Вы уверены, что хотите удалить этот плейлист?</string>
-    <string name="media_playlist_delete_playlist_dialog_confirm">Удалить</string>
-    <string name="media_playlist_delete_playlist_dialog_cancel">Отмена</string>
+    <string name="media_playlist_delete_playlist_dialog_confirm">Да</string>
+    <string name="media_playlist_delete_playlist_dialog_cancel">Нет</string>
     <string name="media_playlist_share_empty_message">В данном плейлисте нет списка треков, которым можно поделиться</string>
     <string name="settings">Настройки</string>
     <string name="settings_theme">Темная тема</string>

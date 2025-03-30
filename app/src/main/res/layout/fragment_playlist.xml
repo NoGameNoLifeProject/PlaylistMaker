@@ -168,7 +168,7 @@
             android:layout_marginTop="@dimen/pd_l"
             android:gravity="center"
             android:text="@string/media_playlist_no_tracks"
-            android:textColor="@color/yp_white"
+            android:textColor="?textColorSecondary"
             android:visibility="gone" />
 
 

@@ -62,6 +62,7 @@ class PlaylistsFragment : BindingFragment<FragmentPlaylistsBinding>() {
     private fun hideAll() {
         binding.playlistsResultsErrorsImage.isVisible = false
         binding.playlistsResultsErrorsText.isVisible = false
+        binding.rvPlaylists.isVisible = false
     }
 
     private fun showError() {
@@ -73,5 +74,6 @@ class PlaylistsFragment : BindingFragment<FragmentPlaylistsBinding>() {
     private fun showContent(playlists: List<PlaylistWithTracks>) {
         hideAll()
         adapter.setPlaylists(playlists)
+        binding.rvPlaylists.isVisible = true
     }
 }

@@ -59,8 +59,9 @@ class PlaylistRepository(
     }
 
     override fun getPlaylist(playlist: Playlist): Flow<PlaylistWithTracks> {
-        return dataBase.playlistDao().getPlaylistWithTracks(playlist.playlistId)
-            .map { playlistWithTracksDbConverter.map(it) }
+        return dataBase.playlistDao().getPlaylistWithTracks(playlist.playlistId).map { rawData ->
+            playlistWithTracksDbConverter.map(rawData)
+        }
     }
 
     override fun getPlaylistById(playlistId: Long): Flow<Playlist> {
