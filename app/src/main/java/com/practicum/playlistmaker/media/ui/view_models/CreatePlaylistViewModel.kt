@@ -10,12 +10,12 @@ import com.practicum.playlistmaker.media.domain.models.CreatePlaylistScreenState
 import com.practicum.playlistmaker.media.domain.models.Playlist
 import kotlinx.coroutines.launch
 
-class CreatePlaylistViewModel(private val playlistInteractor: IPlaylistInteractor) : ViewModel() {
-    private var _imageUri: Uri? = null
-    private var _name: String = ""
-    private var _description: String = ""
-    private val _canCreatePlaylist = MutableLiveData(false)
-    private val _screenState = MutableLiveData<CreatePlaylistScreenState>(CreatePlaylistScreenState.Base)
+open class CreatePlaylistViewModel(private val playlistInteractor: IPlaylistInteractor) : ViewModel() {
+    protected var _imageUri: Uri? = null
+    protected var _name: String = ""
+    protected var _description: String = ""
+    protected val _canCreatePlaylist = MutableLiveData(false)
+    protected val _screenState = MutableLiveData<CreatePlaylistScreenState>(CreatePlaylistScreenState.Base)
 
     val canCreatePlaylist: LiveData<Boolean> get() = _canCreatePlaylist
     val screenState: LiveData<CreatePlaylistScreenState> get() = _screenState
@@ -38,7 +38,7 @@ class CreatePlaylistViewModel(private val playlistInteractor: IPlaylistInteracto
         _imageUri = uri
     }
 
-    fun onCreateHandler() {
+    open fun onCreateHandler() {
         if (_name.isEmpty()) {
             return
         }
@@ -58,7 +58,7 @@ class CreatePlaylistViewModel(private val playlistInteractor: IPlaylistInteracto
         }
     }
 
-    fun onBackHandler() {
+    open fun onBackHandler() {
         if (_name.isEmpty() && _description.isEmpty() && _imageUri == null) {
             _screenState.postValue(CreatePlaylistScreenState.NavigateBack)
         } else {

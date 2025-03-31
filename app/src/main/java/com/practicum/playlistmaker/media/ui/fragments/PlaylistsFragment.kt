@@ -33,7 +33,8 @@ class PlaylistsFragment : BindingFragment<FragmentPlaylistsBinding>() {
         adapter = PlaylistsAdapter({ count ->
             TextUtils.getTracksCountEnding(requireContext(), count)
         }, {
-            // TODO: Open playlist
+            val action = MediaFragmentDirections.actionMediaFragmentToPlaylistFragment(it.playlist.playlistId)
+            findNavController().navigate(action)
         })
 
         binding.rvPlaylists.apply {
@@ -61,6 +62,7 @@ class PlaylistsFragment : BindingFragment<FragmentPlaylistsBinding>() {
     private fun hideAll() {
         binding.playlistsResultsErrorsImage.isVisible = false
         binding.playlistsResultsErrorsText.isVisible = false
+        binding.rvPlaylists.isVisible = false
     }
 
     private fun showError() {
@@ -72,5 +74,6 @@ class PlaylistsFragment : BindingFragment<FragmentPlaylistsBinding>() {
     private fun showContent(playlists: List<PlaylistWithTracks>) {
         hideAll()
         adapter.setPlaylists(playlists)
+        binding.rvPlaylists.isVisible = true
     }
 }

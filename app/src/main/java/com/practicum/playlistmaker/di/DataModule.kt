@@ -2,7 +2,9 @@ package com.practicum.playlistmaker.di
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.google.gson.Gson
 import com.practicum.playlistmaker.media.data.converters.PlaylistDbConverter
 import com.practicum.playlistmaker.media.data.converters.PlaylistTrackDbConverter
@@ -19,6 +21,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.Executors
 
 val dataModule = module {
     single<IApiServiceItunes> {
@@ -36,7 +39,13 @@ val dataModule = module {
     }
 
     single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, DATABASE_NAME).fallbackToDestructiveMigration().build()
+        Room.databaseBuilder(androidContext(), AppDatabase::class.java, DATABASE_NAME)
+            .fallbackToDestructiveMigration()
+            .setQueryCallback(object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                        Log.d("ROOM","SQL Query: $sqlQuery SQL Args: $bindArgs")
+                }
+            }, Executors.newSingleThreadExecutor()).build()
     }
 
     factory { Gson() }
